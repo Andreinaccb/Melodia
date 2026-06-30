@@ -1,7 +1,8 @@
-import React from 'react';
-import { Sparkles, ShoppingBag } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 import { MusicOrder } from '../types';
 import AudioPlayer from './AudioPlayer';
+import { motion } from 'motion/react';
+import { Download, Clock } from 'lucide-react';
 
 interface StepPreviewPlayerProps {
   order: MusicOrder;
@@ -9,62 +10,82 @@ interface StepPreviewPlayerProps {
 }
 
 export default function StepPreviewPlayer({ order, onBuyClick }: StepPreviewPlayerProps) {
-  // Title for the custom preview track
-  const trackTitle = `Melodia para ${order.recipient_name}`;
-  const trackSubtitle = `${order.music_style} • Especial de ${order.occasion}`;
+  const [timeLeft, setTimeLeft] = useState(15 * 60); // 15 minutes in seconds
+
+  useEffect(() => {
+    if (timeLeft <= 0) return;
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [timeLeft]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  };
 
   return (
-    <div className="space-y-8 text-center py-2 sm:py-4 relative">
-      {/* Sparkle Header */}
-      <div className="flex flex-col items-center">
-        <div className="w-16 h-16 rounded-full bg-brand-pink/5 flex items-center justify-center border border-brand-pink/20 mb-5 shadow-lg">
-          <Sparkles className="w-7 h-7 text-brand-pink animate-pulse" />
-        </div>
-        <h3 className="font-serif text-3xl text-premium-title font-bold tracking-tight">
-          Sua prévia está pronta!
+    <div className="space-y-8 py-4">
+      {/* Title */}
+      <motion.div 
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-center space-y-2"
+      >
+        <h3 className="font-serif text-2xl sm:text-3xl text-premium-title font-bold tracking-tight px-2">
+          A prévia para <span className="text-brand-pink underline decoration-brand-pink/20 underline-offset-8">{order.recipient_name}</span> ficou pronta
         </h3>
-        <p className="text-sm text-premium-text mt-3 font-medium max-w-xs mx-auto leading-relaxed opacity-80">
-          Ouça agora a melodia exclusiva criada com base na história de vocês.
+        <p className="text-[13px] text-premium-label font-medium opacity-60 uppercase tracking-widest pt-2">
+          Melodia exclusiva • Versão demonstrativa
         </p>
-      </div>
+      </motion.div>
 
-      {/* Audio Player */}
-      <div className="py-2">
-        <AudioPlayer
-          audioUrl={order.preview_audio_url || 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'}
-          title={trackTitle}
-          subtitle={trackSubtitle}
-        />
-      </div>
+      {/* Modern Compact Player */}
+      <AudioPlayer 
+        audioUrl={order.preview_audio_url || ''} 
+        title={`Para ${order.recipient_name}`}
+        subtitle={`${order.music_style} • ${order.emotion}`}
+      />
 
-      {/* Song Custom Info Cards */}
-      <div className="grid grid-cols-2 gap-5 text-left bg-white border border-premium-border/50 rounded-2xl p-5 text-xs shadow-sm">
-        <div className="space-y-1">
-          <span className="text-premium-label block text-[10px] font-bold uppercase tracking-widest opacity-60">Homenageado(a)</span>
-          <span className="text-premium-title font-bold truncate block">{order.recipient_name}</span>
-        </div>
-        <div className="space-y-1">
-          <span className="text-premium-label block text-[10px] font-bold uppercase tracking-widest opacity-60">Criado por</span>
-          <span className="text-premium-title font-bold truncate block">{order.sender_name}</span>
-        </div>
-        <div className="col-span-2 border-t border-premium-border/30 mt-3 pt-3 space-y-1">
-          <span className="text-premium-label block text-[10px] font-bold uppercase tracking-widest opacity-60">Estilo e Emoção</span>
-          <span className="text-brand-pink font-bold block">{order.music_style} • {order.emotion}</span>
-        </div>
-      </div>
-
-      {/* Buy Button Section */}
-      <div className="space-y-5 pt-4">
-        <button
+      {/* Action & Offer Section */}
+      <div className="space-y-6 pt-2">
+        <motion.button
+          whileHover={{ scale: 1.02, boxShadow: '0 20px 40px -12px rgba(255,79,139,0.4)' }}
+          whileTap={{ scale: 0.98 }}
           onClick={onBuyClick}
-          className="w-full py-5 px-6 btn-premium-gradient text-white font-bold rounded-2xl text-sm uppercase tracking-[0.2em] flex items-center justify-center gap-3 shadow-xl"
+          className="w-full btn-premium-gradient py-5 rounded-2xl font-bold text-white shadow-xl shadow-brand-pink/20 flex items-center justify-center gap-3 group cursor-pointer relative overflow-hidden"
         >
-          <ShoppingBag className="w-5 h-5 text-white" />
-          <span>Adquirir música completa • R$ 19,90</span>
-        </button>
-        <p className="text-[11px] text-premium-text font-bold leading-relaxed max-w-xs mx-auto opacity-40 uppercase tracking-widest">
-          Download imediato em alta definição
-        </p>
+          <motion.div 
+            animate={{ x: ['-100%', '200%'] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12"
+          />
+          <Download className="w-5 h-5 relative z-10" />
+          <span className="relative z-10">Baixar música completa</span>
+        </motion.button>
+
+        {/* Countdown Offer */}
+        <div className="flex flex-col items-center gap-4">
+          <div className="flex items-center gap-3 text-sm">
+            <span className="text-premium-label/40 line-through font-medium">De R$59,00</span>
+            <motion.span 
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="text-premium-title font-bold bg-green-50 text-green-600 px-4 py-1.5 rounded-full border border-green-100 shadow-sm"
+            >
+              por apenas R$19,90
+            </motion.span>
+          </div>
+          
+          <div className="flex items-center gap-3 bg-white/60 backdrop-blur-sm px-5 py-2.5 rounded-2xl border border-brand-pink/10 shadow-sm">
+            <Clock className="w-4 h-4 text-brand-pink animate-pulse" />
+            <span className="text-brand-pink font-mono font-bold text-sm tracking-widest">
+              {formatTime(timeLeft)}
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   );

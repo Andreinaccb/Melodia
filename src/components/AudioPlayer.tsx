@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Play, Pause, RotateCcw, Volume2, VolumeX, Music } from 'lucide-react';
+import { Play, Pause, RotateCcw, Volume2, VolumeX, Music, Maximize2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface AudioPlayerProps {
   audioUrl: string;
@@ -14,9 +15,9 @@ export default function AudioPlayer({ audioUrl, title, subtitle }: AudioPlayerPr
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.8);
   const [isMuted, setIsMuted] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
-    // Reset player states if audioUrl changes
     setIsPlaying(false);
     setCurrentTime(0);
     setDuration(0);
@@ -79,141 +80,205 @@ export default function AudioPlayer({ audioUrl, title, subtitle }: AudioPlayerPr
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
-  // Generate audio bars for visualizer simulation
-  const audioBars = Array.from({ length: 24 });
+  const progressPercentage = (currentTime / (duration || 1)) * 100;
 
   return (
-    <div className="w-full glass-panel rounded-[2rem] p-6 sm:p-8 shadow-2xl relative overflow-hidden border border-white/5">
-      {/* underlying audio element */}
-      <audio
-        ref={audioRef}
-        src={audioUrl}
-        onTimeUpdate={handleTimeUpdate}
-        onLoadedMetadata={handleLoadedMetadata}
-        onEnded={handleAudioEnded}
-      />
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+      className="w-full max-w-md mx-auto"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div className="relative group overflow-hidden rounded-[2.5rem] bg-white/40 backdrop-blur-xl border border-white/60 shadow-[0_32px_64px_-16px_rgba(255,79,139,0.15)] transition-all duration-500 hover:shadow-[0_48px_80px_-20px_rgba(255,79,139,0.25)]">
+        {/* Progress Bar Background (Subtle Fill) */}
+        <div 
+          className="absolute inset-0 bg-brand-pink/5 transition-all duration-700 ease-out origin-left pointer-events-none"
+          style={{ transform: `scaleX(${currentTime / (duration || 1)})` }}
+        />
 
-      {/* Decorative Glows */}
-      <div className="absolute -top-10 -right-10 w-40 h-40 bg-brand-pink/5 rounded-full blur-3xl pointer-events-none"></div>
-      <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-purple-500/[0.02] rounded-full blur-3xl pointer-events-none"></div>
+        <audio
+          ref={audioRef}
+          src={audioUrl}
+          onTimeUpdate={handleTimeUpdate}
+          onLoadedMetadata={handleLoadedMetadata}
+          onEnded={handleAudioEnded}
+        />
 
-      {/* Title & Track Details */}
-      <div className="flex items-center gap-5 mb-8 relative z-10">
-        {/* Album Art Representation */}
-        <div className="relative w-16 h-16 rounded-2xl overflow-hidden bg-premium-card-bg flex items-center justify-center shadow-md border border-premium-border/30 group">
-          <div className={`w-11 h-11 rounded-full border border-premium-border/50 flex items-center justify-center bg-white text-brand-pink transition-transform duration-[6s] ease-linear shadow-sm ${isPlaying ? 'rotate-360 animate-[spin_6s_infinite_linear]' : ''}`}>
-            <Music className="w-5 h-5" />
+        <div className="p-5 sm:p-7 relative z-10">
+          {/* Top Section: Info & Artwork */}
+          <div className="flex items-center gap-4 mb-6">
+            <div className="relative">
+              <motion.div 
+                animate={{ rotate: isPlaying ? 360 : 0 }}
+                transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                className="w-14 h-14 rounded-full bg-gradient-to-tr from-brand-pink to-[#FF8AB3] flex items-center justify-center shadow-lg relative z-20 overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-black/5" />
+                <Music className="w-6 h-6 text-white" />
+                
+                {/* Vinyl Texture */}
+                <div className="absolute inset-0 opacity-20 pointer-events-none" 
+                  style={{ background: 'repeating-radial-gradient(circle at center, transparent 0, transparent 2px, rgba(255,255,255,0.4) 3px, transparent 4px)' }} 
+                />
+              </motion.div>
+              
+              {/* Pulse effect when playing */}
+              <AnimatePresence>
+                {isPlaying && (
+                  <motion.div
+                    initial={{ scale: 0.8, opacity: 0.5 }}
+                    animate={{ scale: 1.4, opacity: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeOut" }}
+                    className="absolute inset-0 bg-brand-pink/30 rounded-full z-10"
+                  />
+                )}
+              </AnimatePresence>
+            </div>
+
+            <div className="flex-1 min-w-0 text-left">
+              <h4 className="font-serif text-lg text-premium-title font-bold truncate leading-tight">
+                {title}
+              </h4>
+              <p className="text-[13px] text-premium-label font-medium truncate opacity-60 mt-1 uppercase tracking-wider">
+                {subtitle}
+              </p>
+            </div>
+
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={() => {
+                if (audioRef.current) {
+                  audioRef.current.currentTime = 0;
+                  setCurrentTime(0);
+                }
+              }}
+              className="w-9 h-9 rounded-full flex items-center justify-center bg-white/80 text-brand-pink/60 hover:text-brand-pink hover:bg-white transition-all cursor-pointer shadow-sm border border-white"
+            >
+              <RotateCcw className="w-4 h-4" />
+            </motion.button>
+          </div>
+
+          {/* Visualizer Row */}
+          <div className="h-10 flex items-center justify-center gap-1 mb-6 px-2 overflow-hidden">
+            {[...Array(32)].map((_, i) => (
+              <motion.div
+                key={i}
+                animate={{ 
+                  height: isPlaying ? [10, Math.random() * 32 + 8, 10] : 4,
+                  opacity: isPlaying ? [0.4, 1, 0.4] : 0.2
+                }}
+                transition={{ 
+                  duration: isPlaying ? 0.6 + Math.random() * 0.4 : 1,
+                  repeat: Infinity,
+                  delay: i * 0.02
+                }}
+                className={`w-1 rounded-full ${isPlaying ? 'bg-brand-pink' : 'bg-premium-label'}`}
+              />
+            ))}
+          </div>
+
+          {/* Controls & Progress Section */}
+          <div className="space-y-5">
+            {/* Custom Progress Bar */}
+            <div className="relative group/progress">
+              <div className="h-2 w-full bg-black/5 rounded-full overflow-hidden relative">
+                <motion.div 
+                  className="absolute top-0 left-0 h-full bg-gradient-to-r from-brand-pink to-[#FF8AB3] rounded-full shadow-[0_0_12px_rgba(255,79,139,0.4)]"
+                  animate={{ width: `${progressPercentage}%` }}
+                  transition={{ duration: 0.1, ease: "linear" }}
+                />
+              </div>
+              
+              <input
+                type="range"
+                min={0}
+                max={duration || 100}
+                value={currentTime}
+                onChange={handleProgressChange}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+              />
+              
+              <div className="flex justify-between mt-2.5 px-0.5 text-[10px] font-mono font-bold tracking-widest text-premium-label/50 uppercase">
+                <span>{formatTime(currentTime)}</span>
+                <span>{formatTime(duration)}</span>
+              </div>
+            </div>
+
+            {/* Bottom Row: Play & Volume */}
+            <div className="flex items-center justify-between gap-6 pt-1">
+              <div className="flex items-center gap-3 w-28 group/vol">
+                <button
+                  onClick={toggleMute}
+                  className="text-premium-label/40 hover:text-brand-pink transition-colors cursor-pointer"
+                >
+                  {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                </button>
+                <div className="relative flex-1 h-1 bg-black/5 rounded-full overflow-hidden">
+                  <div 
+                    className="absolute top-0 left-0 h-full bg-premium-label/20 rounded-full transition-all duration-300"
+                    style={{ width: `${(isMuted ? 0 : volume) * 100}%` }}
+                  />
+                  <input
+                    type="range"
+                    min={0}
+                    max={1}
+                    step={0.05}
+                    value={isMuted ? 0 : volume}
+                    onChange={handleVolumeChange}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                </div>
+              </div>
+
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={togglePlay}
+                className="relative w-16 h-16 rounded-full flex items-center justify-center shadow-[0_12px_24px_-8px_rgba(255,79,139,0.4)] cursor-pointer overflow-hidden z-20"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-brand-pink to-[#FF3F81]" />
+                <AnimatePresence mode="wait">
+                  {isPlaying ? (
+                    <motion.div
+                      key="pause"
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0.8, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <Pause className="w-7 h-7 text-white fill-current" />
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="play"
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0.8, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="translate-x-0.5"
+                    >
+                      <Play className="w-7 h-7 text-white fill-current" />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.button>
+
+              <div className="w-28 flex justify-end">
+                <motion.button
+                  whileHover={{ scale: 1.1, color: '#FF4F8B' }}
+                  className="text-premium-label/40 transition-colors p-2"
+                >
+                  <Maximize2 className="w-4 h-4" />
+                </motion.button>
+              </div>
+            </div>
           </div>
         </div>
-
-        <div className="flex-1 text-left min-w-0">
-          <h4 className="font-serif text-lg text-premium-title font-bold truncate tracking-tight">
-            {title}
-          </h4>
-          <p className="text-sm text-premium-label font-semibold truncate opacity-80 mt-0.5">
-            {subtitle}
-          </p>
-        </div>
       </div>
-
-      {/* Visualizer */}
-      <div className="h-14 flex items-end justify-between gap-[3px] px-1 mb-6 relative z-10">
-        {audioBars.map((_, index) => {
-          const delay = (index % 4) * 0.15;
-          const randomBaseHeight = 15 + (index % 5) * 8 + (index % 3) * 10;
-          return (
-            <div
-              key={index}
-              className={`flex-1 rounded-t-full transition-all duration-300 ${
-                isPlaying ? 'bg-brand-pink' : 'bg-premium-border/40'
-              }`}
-              style={{
-                height: isPlaying ? '100%' : '20%',
-                maxHeight: `${randomBaseHeight}px`,
-                animation: isPlaying ? `bounceVisualizer 1.2s ease-in-out infinite alternate` : 'none',
-                animationDelay: `${delay}s`,
-                boxShadow: isPlaying ? '0 0 15px rgba(255,79,139,0.2)' : 'none'
-              }}
-            />
-          );
-        })}
-      </div>
-
-      {/* Progress Slider */}
-      <div className="space-y-3 mb-8 relative z-10">
-        <input
-          type="range"
-          min={0}
-          max={duration || 100}
-          value={currentTime}
-          onChange={handleProgressChange}
-          className="w-full h-1.5 bg-premium-border/30 rounded-full appearance-none cursor-pointer accent-brand-pink focus:outline-none select-none transition-all hover:bg-premium-border/50"
-          style={{
-            background: `linear-gradient(to right, #FF4F8B 0%, #FF4F8B ${(currentTime / (duration || 1)) * 100}%, rgba(243, 214, 228, 0.3) ${(currentTime / (duration || 1)) * 100}%, rgba(243, 214, 228, 0.3) 100%)`
-          }}
-        />
-        <div className="flex justify-between text-[11px] text-premium-label font-mono font-bold tracking-wider">
-          <span>{formatTime(currentTime)}</span>
-          <span>{formatTime(duration)}</span>
-        </div>
-      </div>
-
-      {/* Playback Controls */}
-      <div className="flex items-center justify-between relative z-10">
-        <div className="flex items-center gap-4 w-32">
-          <button
-            onClick={toggleMute}
-            className="text-premium-label hover:text-brand-pink transition-colors cursor-pointer"
-          >
-            {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-          </button>
-          <input
-            type="range"
-            min={0}
-            max={1}
-            step={0.05}
-            value={isMuted ? 0 : volume}
-            onChange={handleVolumeChange}
-            className="w-20 h-1 bg-premium-border/30 rounded-full appearance-none cursor-pointer accent-brand-pink focus:outline-none"
-            style={{
-              background: `linear-gradient(to right, #FF4F8B 0%, #FF4F8B ${(isMuted ? 0 : volume) * 100}%, rgba(243, 214, 228, 0.2) ${(isMuted ? 0 : volume) * 100}%, rgba(243, 214, 228, 0.2) 100%)`
-            }}
-          />
-        </div>
-
-        <button
-          onClick={togglePlay}
-          className="w-14 h-14 rounded-full btn-premium-gradient flex items-center justify-center cursor-pointer transition-all duration-300 shadow-xl group"
-        >
-          {isPlaying ? (
-            <Pause className="w-6 h-6 fill-current text-white" />
-          ) : (
-            <Play className="w-6 h-6 fill-current text-white translate-x-0.5 group-hover:scale-110 transition-transform" />
-          )}
-        </button>
-
-        <div className="flex justify-end w-32">
-          <button
-            onClick={() => {
-              if (audioRef.current) {
-                audioRef.current.currentTime = 0;
-                setCurrentTime(0);
-              }
-            }}
-            className="p-2.5 rounded-full bg-white hover:bg-premium-card-bg text-premium-label hover:text-brand-pink transition-all cursor-pointer shadow-sm border border-premium-border/40"
-            title="Recomeçar"
-          >
-            <RotateCcw className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
-
-      <style>{`
-        @keyframes bounceVisualizer {
-          0% { height: 15%; }
-          100% { height: 100%; }
-        }
-      `}</style>
-    </div>
+    </motion.div>
   );
 }
