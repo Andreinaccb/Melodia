@@ -66,4 +66,4 @@ export interface SongGenerationInput {
   vocalGender: 'm' | 'f';
 }
 
-export type Step = 'form' | 'generating' | 'preview' | 'checkout' | 'success';
+export type Step = 'form' | 'generating' | 'preview' | 'checkout' | 'payment' | 'success';

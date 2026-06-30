@@ -5,13 +5,15 @@ import StepIndicator from './StepIndicator';
 import StepForm from './StepForm';
 import StepGenerating from './StepGenerating';
 import StepPreviewPlayer from './StepPreviewPlayer';
-import PixCheckout from './PixCheckout';
+import StepCheckout from './StepCheckout';
+import StepPayment from './StepPayment';
 import SuccessStep from './SuccessStep';
 
 export default function MusicCreationCard() {
   const [step, setStep] = useState<Step>('form');
   const [order, setOrder] = useState<MusicOrder | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [deliveryOption, setDeliveryOption] = useState<'immediate' | 'standard'>('immediate');
 
   const checkGenerationIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -118,6 +120,11 @@ export default function MusicCreationCard() {
     setStep('checkout');
   };
 
+  const handleProceedToPayment = (option: 'immediate' | 'standard') => {
+    setDeliveryOption(option);
+    setStep('payment');
+  };
+
   // Payment completed
   const handlePaymentApproved = (updatedOrder: MusicOrder) => {
     setOrder(updatedOrder);
@@ -173,7 +180,11 @@ export default function MusicCreationCard() {
         )}
 
         {step === 'checkout' && order && (
-          <PixCheckout order={order} onPaymentApproved={handlePaymentApproved} />
+          <StepCheckout order={order} onProceedToPayment={handleProceedToPayment} />
+        )}
+
+        {step === 'payment' && order && (
+          <StepPayment order={order} onPaymentApproved={handlePaymentApproved} />
         )}
 
         {step === 'success' && order && (
@@ -182,7 +193,7 @@ export default function MusicCreationCard() {
       </div>
 
       {/* Footer link to create a new music (only in final steps for ease of navigation) */}
-      {(step === 'preview' || step === 'checkout' || step === 'success') && (
+      {(step === 'preview' || step === 'checkout' || step === 'payment' || step === 'success') && (
         <button
           onClick={handleReset}
           className="mt-8 text-[10px] sm:text-xs text-premium-text/40 hover:text-brand-pink font-light tracking-wide flex items-center justify-center gap-1.5 transition-colors cursor-pointer border-t border-premium-border/40 pt-6"

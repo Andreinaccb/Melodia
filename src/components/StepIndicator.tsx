@@ -11,7 +11,7 @@ export default function StepIndicator({ currentStep }: StepIndicatorProps) {
   let activeIndex = 1;
   if (currentStep === 'generating') {
     activeIndex = 2;
-  } else if (currentStep === 'preview' || currentStep === 'checkout' || currentStep === 'success') {
+  } else if (currentStep === 'preview' || currentStep === 'checkout' || currentStep === 'payment' || currentStep === 'success') {
     activeIndex = 3;
   }
 
