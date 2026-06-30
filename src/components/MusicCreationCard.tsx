@@ -84,12 +84,17 @@ export default function MusicCreationCard() {
         if (!res.ok) return;
 
         const data = await res.json();
-        if (data.status === 'SUCCESS') {
+        const isCompleted = data.status === 'completed' || data.status === 'SUCCESS';
+        const previewAudioUrl = data.previewAudioUrl || data.preview_audio_url || data.order?.preview_audio_url || data.order?.previewAudioUrl;
+
+        if (isCompleted && previewAudioUrl) {
           // Success! Clear timer, set the updated order details and transition to preview player
           if (checkGenerationIntervalRef.current) {
             clearInterval(checkGenerationIntervalRef.current);
           }
-          setOrder(data.order);
+          // Merge or set order correctly
+          const finalOrder = data.order || { ...order, ...data, preview_audio_url: previewAudioUrl };
+          setOrder(finalOrder);
           setStep('preview');
         } else if (data.status === 'FAILED') {
           // Failed! Clear timer, show error and return to form

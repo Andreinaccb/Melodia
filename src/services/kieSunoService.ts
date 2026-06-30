@@ -145,7 +145,13 @@ Nossa melodia eterna.`;
     }
 
     // Get public app url
-    const publicAppUrl = getPublicAppUrl();
+    const publicAppUrl = (process.env.PUBLIC_APP_URL || '').trim() || (process.env.APP_URL || '').trim();
+    if (!publicAppUrl || publicAppUrl.includes('localhost') || publicAppUrl === '1') {
+      throw new Error("PUBLIC_APP_URL não configurada ou inválida. A Kie exige callBackUrl público.");
+    }
+
+    const callbackUrlVal = `${process.env.PUBLIC_APP_URL}/api/kie-callback`;
+    console.log('[KIE] callBackUrl enviado:', callbackUrlVal);
 
     // 2. Generate/Optimize lyrics
     const lyrics = await this.generateLyricsWithGemini(input);
@@ -156,7 +162,7 @@ Nossa melodia eterna.`;
       customMode: true,
       instrumental: false,
       model: 'V4',
-      callBackUrl: `${publicAppUrl}/api/kie-callback`,
+      callBackUrl: callbackUrlVal,
       style: input.musicStyle,
       title: `Melodia para ${input.recipientName}`,
       negativeTags: 'Heavy Metal, Screamo, Distorted Vocals, Low Quality, Instrumental Only',
@@ -269,8 +275,11 @@ Nossa melodia eterna.`;
       const msg = body.msg || '';
       
       // Extraction rules based on user requirements
+      const rawStatus = (kieData.status || '').toUpperCase();
+      const hasSunoData = kieData.response?.sunoData && Array.isArray(kieData.response.sunoData) && kieData.response.sunoData.length > 0;
+      
       let tracks: any[] = [];
-      if (kieData.response && Array.isArray(kieData.response.sunoData)) {
+      if (hasSunoData) {
         tracks = kieData.response.sunoData;
       } else if (Array.isArray(kieData.data)) {
         tracks = kieData.data;
@@ -286,10 +295,8 @@ Nossa melodia eterna.`;
         track?.stream_audio_url
       );
 
-      // 1. Success check: if status is SUCCESS or tracks with audio are found
-      const rawStatus = (kieData.status || '').toUpperCase();
-      if (rawStatus === 'SUCCESS' && validTrack) {
-        console.log('[KIE Status Check] Geração concluída com sucesso!');
+      // 1. Success check: responseData.data.status = "SUCCESS" and found audio in responseData.data.response.sunoData (or validTrack fallback)
+      if (rawStatus === 'SUCCESS' && (hasSunoData || validTrack)) {
         return { status: 'SUCCESS' };
       }
 
@@ -379,35 +386,35 @@ Nossa melodia eterna.`;
       }
 
       const validTrack = tracks.find(track =>
-        track?.audioUrl ||
         track?.streamAudioUrl ||
-        track?.sourceAudioUrl ||
-        track?.sourceStreamAudioUrl ||
+        track?.audioUrl ||
+        track?.stream_audio_url ||
         track?.audio_url ||
-        track?.stream_audio_url
-      );
+        track?.sourceStreamAudioUrl ||
+        track?.sourceAudioUrl
+      ) || tracks[0];
 
       if (code === 200 && validTrack) {
         const previewAudioUrl =
           validTrack.streamAudioUrl ||
-          validTrack.sourceStreamAudioUrl ||
-          validTrack.stream_audio_url ||
           validTrack.audioUrl ||
-          validTrack.sourceAudioUrl ||
-          validTrack.audio_url;
+          validTrack.stream_audio_url ||
+          validTrack.audio_url ||
+          validTrack.sourceStreamAudioUrl ||
+          validTrack.sourceAudioUrl;
 
         const fullAudioUrl =
           validTrack.audioUrl ||
-          validTrack.sourceAudioUrl ||
-          validTrack.audio_url ||
           validTrack.streamAudioUrl ||
-          validTrack.sourceStreamAudioUrl ||
-          validTrack.stream_audio_url;
+          validTrack.audio_url ||
+          validTrack.stream_audio_url ||
+          validTrack.sourceAudioUrl ||
+          validTrack.sourceStreamAudioUrl;
 
         const imageUrl =
           validTrack.imageUrl ||
-          validTrack.sourceImageUrl ||
-          validTrack.image_url;
+          validTrack.image_url ||
+          validTrack.sourceImageUrl;
 
         console.log('[KIE] URL de áudio encontrada:', previewAudioUrl);
 

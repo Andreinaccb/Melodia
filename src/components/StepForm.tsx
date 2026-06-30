@@ -208,7 +208,7 @@ export default function StepForm({ onSubmit }: StepFormProps) {
 
       {/* Disclaimer */}
       <p className="text-[11px] text-premium-text/60 font-medium text-center leading-relaxed pt-3">
-        Ao clicar, nossa IA começará a compor sua prévia exclusiva.
+        Ao clicar, iremos começar a compor sua prévia exclusiva.
       </p>
     </form>
   );

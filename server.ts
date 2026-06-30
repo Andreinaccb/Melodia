@@ -103,11 +103,11 @@ async function startServer() {
         return res.status(404).json({ error: 'Pedido não encontrado.' });
       }
 
-      // 1. If we already have the preview URL (from callback), return SUCCESS immediately
+      // 1. If we already have the preview URL (from callback), return SUCCESS / completed immediately
       if (order.preview_audio_url && order.generation_status === 'completed') {
         console.log(`[API] Order ${orderId} already completed via callback.`);
         const secureOrder = { ...order, full_audio_url: null };
-        return res.json({ status: 'SUCCESS', order: secureOrder });
+        return res.json({ status: 'completed', previewAudioUrl: order.preview_audio_url, order: secureOrder });
       }
 
       // 2. If it failed via callback
@@ -145,21 +145,28 @@ async function startServer() {
         try {
           const result = await musicGenerationService.getResult(provider, taskId);
           
+          if (provider === 'kie') {
+            console.log('[KIE POLLING] SUCCESS detectado');
+          }
+
+          // Rule 6: Omit columns like duration and title that may not exist in the database table
           const updatedOrder = await supabaseService.updateOrder(orderId, {
             preview_audio_url: result.previewAudioUrl,
             full_audio_url: result.fullAudioUrl,
             image_url: result.imageUrl,
-            title: result.title,
-            duration: result.duration,
             generation_status: 'completed'
           });
+
+          if (provider === 'kie') {
+            console.log('[KIE POLLING] Supabase atualizado');
+          }
 
           if (!updatedOrder) {
             return res.status(500).json({ error: 'Erro ao atualizar pedido.' });
           }
 
           const secureOrder = { ...updatedOrder, full_audio_url: null };
-          return res.json({ status: 'SUCCESS', order: secureOrder });
+          return res.json({ status: 'completed', previewAudioUrl: result.previewAudioUrl, order: secureOrder });
         } catch (err: any) {
           console.error(`[API] Error retrieving result from ${provider}:`, err);
           return res.status(502).json({ error: 'Erro ao obter as URLs de áudio.' });
@@ -295,21 +302,14 @@ async function startServer() {
   // API Route: Kie Callback Webhook
   app.post('/api/kie-callback', async (req, res) => {
     try {
-      console.log('[KIE CALLBACK] Recebido callback da Kie.ai!');
-      console.log('[KIE CALLBACK] Body completo:', JSON.stringify(req.body, null, 2));
-
       const body = req.body;
+      console.log('[KIE CALLBACK] Body recebido:', JSON.stringify(body, null, 2));
+
       if (!body) return res.status(400).json({ error: 'Body vazio' });
 
-      // 1. Identificar o status geral e o tipo de callback
-      const code = body.code;
-      const msg = body.msg || '';
-      const kieData = body.data || {};
-      const callbackType = kieData.callbackType;
-
       // 2. Extrair Task ID
-      const taskId = kieData.task_id || kieData.taskId || body.task_id || body.taskId;
-      console.log('[KIE CALLBACK] Task ID identificado:', taskId);
+      const taskId = body?.data?.task_id || body?.data?.taskId || body?.task_id || body?.taskId;
+      console.log('[KIE CALLBACK] taskId extraído:', taskId);
 
       if (!taskId) {
         console.warn('[KIE CALLBACK] Task ID não encontrado no payload.');
@@ -324,36 +324,44 @@ async function startServer() {
       }
 
       const updates: any = {};
+      const code = body.code;
+      const kieData = body.data || {};
+      const callbackType = kieData.callbackType || body.callbackType;
 
       // 4. Lógica de Sucesso (callbackType === 'complete' e code === 200)
       if (code === 200 && callbackType === 'complete') {
-        const tracks = kieData.data;
-        if (Array.isArray(tracks) && tracks.length > 0) {
-          const mainTrack = tracks[0];
-          updates.preview_audio_url = mainTrack.stream_audio_url || mainTrack.audio_url;
-          updates.full_audio_url = mainTrack.audio_url || mainTrack.stream_audio_url;
-          updates.image_url = mainTrack.image_url;
-          updates.generation_status = 'completed';
+        let musicData = null;
+        if (body?.data?.data && Array.isArray(body.data.data) && body.data.data.length > 0) {
+          musicData = body.data.data[0];
+        } else if (body?.data?.response?.sunoData && Array.isArray(body.data.response.sunoData) && body.data.response.sunoData.length > 0) {
+          musicData = body.data.response.sunoData[0];
+        }
 
-          if (tracks[1]) {
-            updates.alternative_audio_url = tracks[1].audio_url || tracks[1].stream_audio_url;
-          }
-          
-          console.log('[KIE CALLBACK] Sucesso! URLs salvas para o pedido:', order.id);
+        if (musicData) {
+          console.log('[KIE CALLBACK] Música encontrada:', JSON.stringify(musicData, null, 2));
+
+          const streamAudioUrl = musicData.streamAudioUrl || musicData.stream_audio_url;
+          const audioUrl = musicData.audioUrl || musicData.audio_url;
+          const imageUrl = musicData.imageUrl || musicData.image_url;
+
+          updates.generation_status = 'completed';
+          updates.preview_audio_url = streamAudioUrl || audioUrl || musicData.stream_audio_url || musicData.audio_url;
+          updates.full_audio_url = audioUrl || streamAudioUrl || musicData.audio_url || musicData.stream_audio_url;
+          updates.image_url = imageUrl || musicData.image_url;
         }
       } 
       // 5. Lógica de Erro (code 501 ou callbackType === 'error')
       else if (code === 501 || callbackType === 'error') {
         updates.generation_status = 'failed';
-        updates.generation_error = msg || 'Erro desconhecido na Kie';
+        updates.generation_error = body.msg || kieData.msg || 'Erro desconhecido na Kie';
         console.error('[KIE CALLBACK] Falha na geração:', updates.generation_error);
-        
-        // Aqui você poderia disparar o fallback automático para Treblo se necessário
       } else {
         updates.generation_status = 'processing';
       }
 
       await supabaseService.updateOrder(order.id, updates);
+      console.log('[KIE CALLBACK] Supabase atualizado:', order.id);
+
       return res.status(200).json({ success: true });
     } catch (error: any) {
       console.error('[KIE CALLBACK] Erro crítico:', error);
