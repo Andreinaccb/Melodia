@@ -1,0 +1,6 @@
+{
+  "name": "Melodia IA",
+  "description": "Transforme sua história em uma música única para emocionar quem você ama. Crie uma prévia gratuita e compre a canção completa via Pix.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
