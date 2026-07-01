@@ -44,7 +44,7 @@ export default function StepPayment({ order, onPaymentApproved }: StepPaymentPro
       try {
         setLoading(true);
         setError(null);
-        const res = await fetch(`/api/orders/${order.id}/create-pix`, {
+        const res = await fetch(`/api/create-pix-payment?id=${order.id}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
         });
@@ -71,7 +71,7 @@ export default function StepPayment({ order, onPaymentApproved }: StepPaymentPro
     if (!pixData?.paymentId) return;
     async function checkStatus() {
       try {
-        const res = await fetch(`/api/orders/${order.id}/check-payment`);
+        const res = await fetch(`/api/check-payment-status?id=${order.id}`);
         if (!res.ok) return;
         const data = await res.json();
         if (data.status === 'approved') {

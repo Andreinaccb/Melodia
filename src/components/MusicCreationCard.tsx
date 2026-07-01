@@ -82,7 +82,7 @@ export default function MusicCreationCard() {
 
     const checkStatus = async () => {
       try {
-        const res = await fetch(`/api/orders/${orderId}/check-generation`);
+        const res = await fetch(`/api/check-song-status?id=${orderId}`);
         if (!res.ok) return;
 
         const data = await res.json();

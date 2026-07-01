@@ -94,9 +94,10 @@ async function startServer() {
   });
 
   // API Route: Check Generation Status
-  app.get('/api/orders/:id/check-generation', async (req, res) => {
+  app.get('/api/check-song-status', async (req, res) => {
     try {
-      const orderId = req.params.id;
+      const orderId = req.query.id as string;
+      if (!orderId) return res.status(400).json({ error: 'ID is required' });
       const order = await supabaseService.getOrder(orderId);
 
       if (!order) {
@@ -184,9 +185,10 @@ async function startServer() {
   });
 
   // API Route: Create Pix payment
-  app.post('/api/orders/:id/create-pix', async (req, res) => {
+  app.post('/api/create-pix-payment', async (req, res) => {
     try {
-      const orderId = req.params.id;
+      const orderId = (req.query.id || req.body.id) as string;
+      if (!orderId) return res.status(400).json({ error: 'ID is required' });
       const order = await supabaseService.getOrder(orderId);
 
       if (!order) {
@@ -224,9 +226,10 @@ async function startServer() {
   });
 
   // API Route: Check Pix payment status
-  app.get('/api/orders/:id/check-payment', async (req, res) => {
+  app.get('/api/check-payment-status', async (req, res) => {
     try {
-      const orderId = req.params.id;
+      const orderId = req.query.id as string;
+      if (!orderId) return res.status(400).json({ error: 'ID is required' });
       const order = await supabaseService.getOrder(orderId);
 
       if (!order) {
