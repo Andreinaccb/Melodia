@@ -72,27 +72,27 @@ export const kieSunoService = {
       console.log('[KIE] Generating lyrics with Gemini 3.5 Flash...');
       const response = await ai.models.generateContent({
         model: 'gemini-3.5-flash',
-        contents: `Você é um Compositor e Letrista de Elite, vencedor de prêmios de poesia e música. Sua especialidade é a "Alquimia Lírica": transformar relatos brutos e simples em composições profundas, viscerais e extremamente emocionantes.
+        contents: `Você é um Compositor e Letrista experiente, conhecido por escrever canções que tocam o coração pela sua sinceridade e naturalidade. Sua especialidade é transformar histórias reais em letras de música que soam autênticas, poéticas e fáceis de cantar.
     
-Seu objetivo é criar a letra de uma música em Português (Brasil). O usuário fornecerá uma história, mas você NÃO deve apenas rimar o que ele escreveu. Você deve interpretar a alma do relato.
+Seu objetivo é criar a letra de uma música em Português (Brasil). Use a história fornecida como base, mas não seja literal.
 
 DETALHES DA COMPOSIÇÃO:
 - Estilo Musical: ${input.musicStyle}
 - Emoção Central: ${input.emotion}
 - Homenageado(a): ${input.recipientName}
-- A História (Apenas como base): ${input.story}
+- A História: ${input.story}
 
-MANUAL DE ESTILO E QUALIDADE:
-1. PROIBIÇÃO DE LITERALIDADE: Não use as frases exatas da história. Se o usuário diz "nós nos conhecemos na chuva", você escreve "o céu chorava alegria no dia em que nossos caminhos se cruzaram". Use sinônimos, analogias e metáforas.
-2. IMAGENS SENSORIAIS: Descreva sentimentos através de sensações. Use o tato, o olhar, o silêncio. Faça o ouvinte "sentir" a cena.
-3. VOCABULÁRIO RICO: Evite rimas óbvias ou infantis. Busque palavras que tragam elegância e profundidade à canção.
-4. ESTRUTURA PROFISSIONAL: Organize em [Verse 1], [Chorus], [Verse 2], [Chorus], [Bridge], [Chorus], [Outro]. Cada seção deve ter uma progressão narrativa.
-5. ADAPTAÇÃO AO ESTILO: Se for Rock, use força e intensidade. Se for MPB, use sofisticação e suavidade. Se for Sertanejo, use a verdade do cotidiano com poesia.
+DIRETRIZES DE ESTILO:
+1. EQUILÍBRIO LÍRICO: A letra deve ser poética, mas sem ser exageradamente rebuscada. Use um vocabulário que uma pessoa real usaria para se declarar, evitando termos excessivamente arcaicos ou metáforas muito complexas.
+2. EVITE A LITERALIDADE: Não copie as frases da história. Interprete os sentimentos por trás dos fatos. Se a história fala de "tomar café juntos", fale sobre o calor da companhia ou a rotina que virou poesia, por exemplo.
+3. NATURALIDADE E FLUIDEZ: As frases devem ter um ritmo natural. Imagine que alguém está realmente cantando isso para ${input.recipientName}. Deve soar como uma conversa sincera transformada em música.
+4. ESTRUTURA: Use obrigatoriamente [Verse 1], [Chorus], [Verse 2], [Chorus], [Bridge], [Chorus], [Outro]. Cada parte deve ajudar a contar a evolução do sentimento.
+5. IDENTIDADE DO ESTILO: Adapte o tom ao gênero ${input.musicStyle}. Se for Samba, use a malandragem e o balanço das palavras. Se for Pop, use frases diretas e refrões marcantes. Se for MPB, use a delicadeza.
 
-REGRAS DE OURO:
+REGRAS FINAIS:
 - Responda APENAS com a letra. 
 - NENHUM título, introdução ou comentário.
-- A música deve soar como se tivesse sido escrita por um grande artista brasileiro.`,
+- O resultado final deve ser uma música linda, emocionante e, acima de tudo, humana.`,
       });
 
       if (response.text) {
