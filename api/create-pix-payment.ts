@@ -2,6 +2,12 @@ import { supabaseService } from '../src/services/supabaseService';
 import { mercadoPagoService } from '../src/services/mercadoPagoService';
 
 export default async function handler(req: any, res: any) {
+  console.log('[API create-pix-payment] started');
+  
+  // Environment Diagnostics (Safe)
+  console.log('[ENV] MERCADO_PAGO_ACCESS_TOKEN exists:', !!process.env.MERCADO_PAGO_ACCESS_TOKEN);
+  console.log('[ENV] SUPABASE_URL exists:', !!process.env.SUPABASE_URL);
+
   const id = req.query.id || req.body?.id;
 
   if (!id) {
@@ -12,13 +18,15 @@ export default async function handler(req: any, res: any) {
     const order = await supabaseService.getOrder(id);
 
     if (!order) {
+      console.warn(`[API create-pix-payment] Order not found: ${id}`);
       return res.status(404).json({ error: 'Pedido não encontrado.' });
     }
 
     // Determine price (Music 19.90 + optional immediate delivery 9.90)
-    // For simplicity, we can pass the delivery option in the body
     const deliveryOption = req.body?.deliveryOption || 'standard';
     const amount = deliveryOption === 'immediate' ? 29.80 : 19.90;
+
+    console.log(`[API create-pix-payment] Creating payment for order ${id}, amount ${amount}`);
 
     const paymentResponse = await mercadoPagoService.createPixPayment(
       amount,
@@ -31,6 +39,7 @@ export default async function handler(req: any, res: any) {
     });
 
     if (!updatedOrder) {
+      console.error('[API create-pix-payment] DB update failed after payment creation');
       return res.status(500).json({ error: 'Erro ao atualizar pedido no banco.' });
     }
 
@@ -41,7 +50,10 @@ export default async function handler(req: any, res: any) {
       status: paymentResponse.status,
     });
   } catch (error: any) {
-    console.error('[API] Error creating Pix:', error);
-    return res.status(500).json({ error: 'Erro ao gerar pagamento Pix.' });
+    console.error('[API create-pix-payment] error:', error);
+    return res.status(500).json({ 
+      error: 'Erro ao gerar pagamento Pix.',
+      message: error instanceof Error ? error.message : String(error)
+    });
   }
 }

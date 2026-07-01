@@ -49,9 +49,21 @@ export default function StepPayment({ order, onPaymentApproved }: StepPaymentPro
           headers: { 'Content-Type': 'application/json' },
         });
 
-        if (!res.ok) throw new Error('Falha ao gerar o Pix.');
-        const data = await res.json();
-        if (active) {
+        let data: any = null;
+        try {
+          const contentType = res.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            data = await res.json();
+          }
+        } catch (e) {
+          console.error('[StepPayment] Error parsing response:', e);
+        }
+
+        if (!res.ok) {
+          throw new Error((data && data.error) || 'Falha ao gerar o Pix.');
+        }
+
+        if (active && data) {
           setPixData(data);
           setLoading(false);
         }

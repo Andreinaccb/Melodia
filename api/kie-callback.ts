@@ -1,6 +1,7 @@
 import { supabaseService } from '../src/services/supabaseService';
 
 export default async function handler(req: any, res: any) {
+  console.log('[KIE CALLBACK] started');
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -14,11 +15,13 @@ export default async function handler(req: any, res: any) {
     const taskId = body?.data?.task_id || body?.data?.taskId || body?.task_id || body?.taskId;
     
     if (!taskId) {
+      console.warn('[KIE CALLBACK] No taskId in payload');
       return res.status(400).json({ error: 'Task ID não encontrado' });
     }
 
     const order = await supabaseService.getOrderByKieTaskId(taskId);
     if (!order) {
+      console.warn(`[KIE CALLBACK] Order not found for taskId: ${taskId}`);
       return res.status(404).json({ error: 'Pedido não encontrado' });
     }
 
@@ -28,6 +31,7 @@ export default async function handler(req: any, res: any) {
     const callbackType = kieData.callbackType || body.callbackType;
 
     if (code === 200 && callbackType === 'complete') {
+      console.log(`[KIE CALLBACK] Success for taskId ${taskId}`);
       let musicData = null;
       if (body?.data?.data && Array.isArray(body.data.data) && body.data.data.length > 0) {
         musicData = body.data.data[0];
@@ -47,9 +51,11 @@ export default async function handler(req: any, res: any) {
       }
     } 
     else if (code === 501 || callbackType === 'error') {
+      console.error(`[KIE CALLBACK] Error for taskId ${taskId}:`, body.msg || kieData.msg);
       updates.generation_status = 'failed';
       updates.generation_error = body.msg || kieData.msg || 'Erro na Kie';
     } else {
+      console.log(`[KIE CALLBACK] Update for taskId ${taskId}: ${callbackType}`);
       updates.generation_status = 'processing';
     }
 
@@ -57,6 +63,9 @@ export default async function handler(req: any, res: any) {
     return res.status(200).json({ success: true });
   } catch (error: any) {
     console.error('[KIE CALLBACK] Erro:', error);
-    return res.status(500).json({ error: 'Internal error' });
+    return res.status(500).json({ 
+      error: 'Internal server error',
+      message: error instanceof Error ? error.message : String(error)
+    });
   }
 }

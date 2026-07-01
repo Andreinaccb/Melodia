@@ -3,6 +3,36 @@ import { musicGenerationService } from '../src/services/musicGenerationService';
 import { SongGenerationInput } from '../src/types';
 
 export default async function handler(req: any, res: any) {
+  console.log('[API generate-song] started');
+  
+  // Environment Diagnostics
+  console.log('[ENV] KIE_API_URL:', process.env.KIE_API_URL);
+  console.log('[ENV] PUBLIC_APP_URL:', process.env.PUBLIC_APP_URL);
+  console.log('[ENV] KIE_API_KEY exists:', !!process.env.KIE_API_KEY);
+  console.log('[ENV] GEMINI_API_KEY exists:', !!process.env.GEMINI_API_KEY);
+  console.log('[ENV] SUPABASE_URL exists:', !!process.env.SUPABASE_URL);
+  console.log('[ENV] SUPABASE_KEY exists:', !!process.env.SUPABASE_KEY);
+
+  // Strict Variable Checks
+  const requiredEnv = [
+    'KIE_API_KEY', 
+    'KIE_API_URL', 
+    'GEMINI_API_KEY', 
+    'SUPABASE_URL', 
+    'SUPABASE_KEY', 
+    'PUBLIC_APP_URL'
+  ];
+  
+  for (const varName of requiredEnv) {
+    if (!process.env[varName]) {
+      console.error(`[API generate-song] Missing environment variable: ${varName}`);
+      return res.status(500).json({ 
+        error: "Missing environment variable", 
+        missing: varName 
+      });
+    }
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -22,8 +52,11 @@ export default async function handler(req: any, res: any) {
     try {
       generationResult = await musicGenerationService.generateSong(input);
     } catch (err: any) {
-      console.error('[API] Music generation failed:', err.message);
-      return res.status(502).json({ error: err.message || 'Falha ao iniciar a geração da música.' });
+      console.error('[API] Music generation failed:', err.message || err);
+      return res.status(502).json({ 
+        error: 'Falha ao iniciar a geração da música.',
+        message: err.message || String(err)
+      });
     }
 
     // 2. Create order in Database
@@ -51,7 +84,10 @@ export default async function handler(req: any, res: any) {
     const secureOrder = { ...order, full_audio_url: null };
     return res.status(201).json(secureOrder);
   } catch (error: any) {
-    console.error('[API] Error in generate-song:', error);
-    return res.status(500).json({ error: 'Erro interno ao processar a geração.' });
+    console.error('[API generate-song] error:', error);
+    return res.status(500).json({ 
+      error: 'Internal server error',
+      message: error instanceof Error ? error.message : String(error)
+    });
   }
 }
