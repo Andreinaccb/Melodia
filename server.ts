@@ -30,6 +30,12 @@ async function startServer() {
       }
 
       console.log('[API] Song generation requested for recipient:', input.recipientName);
+      
+      // Standardized Logs for Cerebras
+      const cerebrasModel = process.env.CEREBRAS_MODEL?.trim() || "llama3.1-70b";
+      console.log("[SERVER] CEREBRAS_MODEL env exists:", !!process.env.CEREBRAS_MODEL);
+      console.log("[SERVER] CEREBRAS_MODEL value:", process.env.CEREBRAS_MODEL?.trim());
+      console.log("[SERVER] Model actually used:", cerebrasModel);
 
       // 1. Call Music Generation Service to start generation (tries Kie first, then Treblo)
       let generationResult;

@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { MusicOrder } from '../../lib/types';
 import AudioPlayer from './AudioPlayer';
 import { motion } from 'motion/react';
-import { Download, Clock } from 'lucide-react';
+import { Download } from 'lucide-react';
 
 interface StepPreviewPlayerProps {
   order: MusicOrder;
@@ -10,22 +10,6 @@ interface StepPreviewPlayerProps {
 }
 
 export default function StepPreviewPlayer({ order, onBuyClick }: StepPreviewPlayerProps) {
-  const [timeLeft, setTimeLeft] = useState(15 * 60); // 15 minutes in seconds
-
-  useEffect(() => {
-    if (timeLeft <= 0) return;
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => prev - 1);
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [timeLeft]);
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-  };
-
   return (
     <div className="space-y-8 py-4">
       {/* Title */}
@@ -65,27 +49,6 @@ export default function StepPreviewPlayer({ order, onBuyClick }: StepPreviewPlay
           <Download className="w-5 h-5 relative z-10" />
           <span className="relative z-10">Baixar música completa</span>
         </motion.button>
-
-        {/* Countdown Offer */}
-        <div className="flex flex-col items-center gap-4">
-          <div className="flex items-center gap-3 text-sm">
-            <span className="text-premium-label/40 line-through font-medium">De R$59,00</span>
-            <motion.span 
-              animate={{ scale: [1, 1.05, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="text-premium-title font-bold bg-green-50 text-green-600 px-4 py-1.5 rounded-full border border-green-100 shadow-sm"
-            >
-              por apenas R$19,90
-            </motion.span>
-          </div>
-          
-          <div className="flex items-center gap-3 bg-white/60 backdrop-blur-sm px-5 py-2.5 rounded-2xl border border-brand-pink/10 shadow-sm">
-            <Clock className="w-4 h-4 text-brand-pink animate-pulse" />
-            <span className="text-brand-pink font-mono font-bold text-sm tracking-widest">
-              {formatTime(timeLeft)}
-            </span>
-          </div>
-        </div>
       </div>
     </div>
   );

@@ -9,7 +9,13 @@ export default async function handler(req: any, res: any) {
   console.log('[ENV] KIE_API_URL:', process.env.KIE_API_URL);
   console.log('[ENV] PUBLIC_APP_URL:', process.env.PUBLIC_APP_URL);
   console.log('[ENV] KIE_API_KEY exists:', !!process.env.KIE_API_KEY);
-  console.log('[ENV] GEMINI_API_KEY exists:', !!process.env.GEMINI_API_KEY);
+  console.log('[ENV] CEREBRAS_API_KEY exists:', !!process.env.CEREBRAS_API_KEY);
+  
+  const cerebrasModel = process.env.CEREBRAS_MODEL?.trim() || "llama3.1-70b";
+  console.log("[ENV] CEREBRAS_MODEL env exists:", !!process.env.CEREBRAS_MODEL);
+  console.log("[ENV] CEREBRAS_MODEL value:", process.env.CEREBRAS_MODEL?.trim());
+  console.log("[ENV] Model actually used:", cerebrasModel);
+  
   console.log('[ENV] SUPABASE_URL exists:', !!process.env.SUPABASE_URL);
   console.log('[ENV] SUPABASE_KEY exists:', !!process.env.SUPABASE_KEY);
 
@@ -17,7 +23,7 @@ export default async function handler(req: any, res: any) {
   const requiredEnv = [
     'KIE_API_KEY', 
     'KIE_API_URL', 
-    'GEMINI_API_KEY', 
+    'CEREBRAS_API_KEY', 
     'SUPABASE_URL', 
     'SUPABASE_KEY', 
     'PUBLIC_APP_URL'

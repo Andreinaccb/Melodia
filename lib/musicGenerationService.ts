@@ -6,6 +6,12 @@ export const musicGenerationService = {
   async generateSong(input: SongGenerationInput): Promise<{ provider: 'kie' | 'treblo'; taskId: string }> {
     console.log('[MUSIC GENERATION] Iniciando processo de geração para:', input.recipientName);
 
+    // Standardized Logs for Cerebras
+    const cerebrasModel = process.env.CEREBRAS_MODEL?.trim() || "llama3.1-70b";
+    console.log("[MUSIC GENERATION] CEREBRAS_MODEL env exists:", !!process.env.CEREBRAS_MODEL);
+    console.log("[MUSIC GENERATION] CEREBRAS_MODEL value:", process.env.CEREBRAS_MODEL?.trim());
+    console.log("[MUSIC GENERATION] Model actually used:", cerebrasModel);
+
     // 1. Try KIE first if configured (or simulate if nothing is configured, since Kie is preferred)
     const isKieConfigured = kieSunoService.isConfigured();
     const isTrebloConfigured = trebloService.isConfigured();

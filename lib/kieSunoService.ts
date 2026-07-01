@@ -1,5 +1,5 @@
 import { SongGenerationInput } from './types.js';
-import { GoogleGenAI } from '@google/genai';
+import { cerebrasService } from './cerebrasService.js';
 
 function getKieApiKey(): string {
   const key = (process.env.KIE_API_KEY || '').trim();
@@ -18,37 +18,12 @@ function getKieApiUrl(): string {
   return url;
 }
 
-function getGeminiApiKey(): string {
-  return process.env.GEMINI_API_KEY || '';
-}
-
 function getPublicAppUrl(): string {
   const url = process.env.PUBLIC_APP_URL || process.env.APP_URL || '';
   if (!url) {
     throw new Error("PUBLIC_APP_URL não configurada. A Kie exige callBackUrl público.");
   }
   return url;
-}
-
-// Lazy-initialized Gemini Client Utility
-let aiClient: GoogleGenAI | null = null;
-function getGeminiClient(): GoogleGenAI | null {
-  const geminiKey = getGeminiApiKey();
-  if (!aiClient && geminiKey) {
-    try {
-      aiClient = new GoogleGenAI({
-        apiKey: geminiKey,
-        httpOptions: {
-          headers: {
-            'User-Agent': 'aistudio-build',
-          }
-        }
-      });
-    } catch (err) {
-      console.error('[KIE] Failed to initialize Gemini client:', err);
-    }
-  }
-  return aiClient;
 }
 
 export const kieSunoService = {
@@ -59,52 +34,6 @@ export const kieSunoService = {
       key !== 'your_kie_api_key' &&
       key !== 'MY_KIE_API_KEY'
     );
-  },
-
-  async generateLyricsWithGemini(input: SongGenerationInput): Promise<string> {
-    const ai = getGeminiClient();
-    if (!ai) {
-      console.log('[KIE] Gemini client not configured. Using deterministic template for lyrics.');
-      return this.generateDeterministicLyrics(input);
-    }
-
-    try {
-      console.log('[KIE] Generating lyrics with Gemini 3.5 Flash...');
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.5-flash',
-        contents: `Você é um Compositor e Letrista de Elite, vencedor de prêmios de poesia e música. Sua especialidade é a "Alquimia Lírica": transformar relatos brutos e simples em composições profundas, viscerais e extremamente emocionantes.
-    
-Seu objetivo é criar a letra de uma música em Português (Brasil). O usuário fornecerá uma história, mas você NÃO deve apenas rimar o que ele escreveu. Você deve interpretar a alma do relato.
-
-DETALHES DA COMPOSIÇÃO:
-- Estilo Musical: ${input.musicStyle}
-- Emoção Central: ${input.emotion}
-- Homenageado(a): ${input.recipientName}
-- A História (Apenas como base): ${input.story}
-
-MANUAL DE ESTILO E QUALIDADE:
-1. PROIBIÇÃO DE LITERALIDADE: Não use as frases exatas da história. Se o usuário diz "nós nos conhecemos na chuva", você escreve "o céu chorava alegria no dia em que nossos caminhos se cruzaram". Use sinônimos, analogias e metáforas.
-2. IMAGENS SENSORIAIS: Descreva sentimentos através de sensações. Use o tato, o olhar, o silêncio. Faça o ouvinte "sentir" a cena.
-3. VOCABULÁRIO RICO: Evite rimas óbvias ou infantis. Busque palavras que tragam elegância e profundidade à canção.
-4. ESTRUTURA PROFISSIONAL: Organize em [Verse 1], [Chorus], [Verse 2], [Chorus], [Bridge], [Chorus], [Outro]. Cada seção deve ter uma progressão narrativa.
-5. ADAPTAÇÃO AO ESTILO: Se for Rock, use força e intensidade. Se for MPB, use sofisticação e suavidade. Se for Sertanejo, use a verdade do cotidiano com poesia.
-
-REGRAS DE OURO:
-- Responda APENAS com a letra. 
-- NENHUM título, introdução ou comentário.
-- A música deve soar como se tivesse sido escrita por um grande artista brasileiro.`,
-      });
-
-      if (response.text) {
-        const lyrics = response.text.trim();
-        console.log('[KIE] Gemini lyrics generated successfully:\n', lyrics.substring(0, 150) + '...');
-        return lyrics;
-      }
-    } catch (error: any) {
-      console.error('[KIE] Gemini lyric generation failed. Falling back to deterministic lyrics:', error.message);
-    }
-
-    return this.generateDeterministicLyrics(input);
   },
 
   generateDeterministicLyrics(input: SongGenerationInput): string {
@@ -165,8 +94,18 @@ Nossa melodia eterna.`;
     const callbackUrlVal = `${process.env.PUBLIC_APP_URL}/api/kie-callback`;
     console.log('[KIE] callBackUrl enviado:', callbackUrlVal);
 
-    // 2. Generate/Optimize lyrics
-    const lyrics = await this.generateLyricsWithGemini(input);
+    // 2. Generate/Optimize lyrics using Cerebras
+    const cerebrasModel = process.env.CEREBRAS_MODEL?.trim() || "llama3.1-70b";
+    console.log("[KIE] Calling Cerebras for lyrics generation...");
+    console.log("[KIE] CEREBRAS_MODEL env exists:", !!process.env.CEREBRAS_MODEL);
+    console.log("[KIE] CEREBRAS_MODEL value:", process.env.CEREBRAS_MODEL?.trim());
+    console.log("[KIE] Model actually used:", cerebrasModel);
+
+    let lyrics = await cerebrasService.generateLyrics(input);
+    if (!lyrics) {
+      console.warn('[KIE] Cerebras lyrics generation failed. Falling back to deterministic lyrics.');
+      lyrics = this.generateDeterministicLyrics(input);
+    }
 
     // 3. Prepare payload
     const payload = {
