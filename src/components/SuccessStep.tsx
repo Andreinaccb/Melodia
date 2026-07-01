@@ -1,6 +1,6 @@
 import React from 'react';
 import { Sparkles, CheckCircle2, Download, Share2, Heart } from 'lucide-react';
-import { MusicOrder } from '../types';
+import { MusicOrder } from '../../lib/types';
 import AudioPlayer from './AudioPlayer';
 
 interface SuccessStepProps {

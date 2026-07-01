@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Step } from '../types';
+import { Step } from '../../lib/types';
 
 interface StepIndicatorProps {
   currentStep: Step;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { QrCode, Copy, Check, Loader2, AlertCircle, ShieldCheck, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { MusicOrder } from '../types';
+import { MusicOrder } from '../../lib/types';
 
 interface StepPaymentProps {
   order: MusicOrder;

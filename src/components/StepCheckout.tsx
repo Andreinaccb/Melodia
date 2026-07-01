@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { MusicOrder } from '../types';
+import { MusicOrder } from '../../lib/types';
 import { Zap, Clock, ChevronRight, ShoppingBag } from 'lucide-react';
 
 interface StepCheckoutProps {

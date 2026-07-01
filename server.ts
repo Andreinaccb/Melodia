@@ -4,11 +4,11 @@ dotenv.config();
 import express from 'express';
 import * as path from 'path';
 import { createServer as createViteServer } from 'vite';
-import { supabaseService } from './src/services/supabaseService';
-import { trebloService } from './src/services/trebloService';
-import { musicGenerationService } from './src/services/musicGenerationService';
-import { mercadoPagoService } from './src/services/mercadoPagoService';
-import { MusicOrder, SongGenerationInput } from './src/types';
+import { supabaseService } from './lib/supabaseService.js';
+import { trebloService } from './lib/trebloService.js';
+import { musicGenerationService } from './lib/musicGenerationService.js';
+import { mercadoPagoService } from './lib/mercadoPagoService.js';
+import { MusicOrder, SongGenerationInput } from './lib/types.js';
 
 async function startServer() {
   const app = express();

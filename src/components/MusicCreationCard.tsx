@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { AlertTriangle, RotateCcw } from 'lucide-react';
-import { MusicOrder, SongGenerationInput, Step } from '../types';
+import { MusicOrder, SongGenerationInput, Step } from '../../lib/types';
 import StepIndicator from './StepIndicator';
 import StepForm from './StepForm';
 import StepGenerating from './StepGenerating';

@@ -1,4 +1,4 @@
-import { supabaseService } from '../src/services/supabaseService';
+import { supabaseService } from '../lib/supabaseService.js';
 
 export default async function handler(req: any, res: any) {
   console.log('[KIE CALLBACK] started');

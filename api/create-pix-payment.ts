@@ -1,5 +1,5 @@
-import { supabaseService } from '../src/services/supabaseService';
-import { mercadoPagoService } from '../src/services/mercadoPagoService';
+import { supabaseService } from '../lib/supabaseService.js';
+import { mercadoPagoService } from '../lib/mercadoPagoService.js';
 
 export default async function handler(req: any, res: any) {
   console.log('[API create-pix-payment] started');

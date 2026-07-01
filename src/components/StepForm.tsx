@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { User, Music, MessageSquare, Sparkles, Heart, Gift, Mic } from 'lucide-react';
-import { SongGenerationInput, RecipientType, MusicStyleType, OccasionType, EmotionType } from '../types';
+import { SongGenerationInput, RecipientType, MusicStyleType, OccasionType, EmotionType } from '../../lib/types';
 import PremiumSelect from './ui/PremiumSelect';
 
 interface StepFormProps {

@@ -1,4 +1,4 @@
-import { SongGenerationInput } from '../types';
+import { SongGenerationInput } from './types.js';
 
 function getTrebloApiKey(): string {
   return process.env.TREBLO_API_KEY || '';

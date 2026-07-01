@@ -1,6 +1,6 @@
-import { supabaseService } from '../src/services/supabaseService';
-import { musicGenerationService } from '../src/services/musicGenerationService';
-import { SongGenerationInput } from '../src/types';
+import { supabaseService } from '../lib/supabaseService.js';
+import { musicGenerationService } from '../lib/musicGenerationService.js';
+import { SongGenerationInput } from '../lib/types.js';
 
 export default async function handler(req: any, res: any) {
   console.log('[API generate-song] started');

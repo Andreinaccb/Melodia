@@ -1,6 +1,6 @@
-import { SongGenerationInput } from '../types';
-import { kieSunoService } from './kieSunoService';
-import { trebloService } from './trebloService';
+import { SongGenerationInput } from './types.js';
+import { kieSunoService } from './kieSunoService.js';
+import { trebloService } from './trebloService.js';
 
 export const musicGenerationService = {
   async generateSong(input: SongGenerationInput): Promise<{ provider: 'kie' | 'treblo'; taskId: string }> {

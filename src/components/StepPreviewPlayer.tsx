@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MusicOrder } from '../types';
+import { MusicOrder } from '../../lib/types';
 import AudioPlayer from './AudioPlayer';
 import { motion } from 'motion/react';
 import { Download, Clock } from 'lucide-react';

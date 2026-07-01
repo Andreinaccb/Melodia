@@ -1,4 +1,4 @@
-import { SongGenerationInput } from '../types';
+import { SongGenerationInput } from './types.js';
 import { GoogleGenAI } from '@google/genai';
 
 function getKieApiKey(): string {
