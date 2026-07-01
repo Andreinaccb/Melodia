@@ -1,4 +1,5 @@
 import { SongGenerationInput } from './types.js';
+import { GoogleGenAI } from '@google/genai';
 
 function getTrebloApiKey(): string {
   return process.env.TREBLO_API_KEY || '';
@@ -6,6 +7,10 @@ function getTrebloApiKey(): string {
 
 function getTrebloApiUrl(): string {
   return process.env.TREBLO_API_URL || 'https://api.treblo.com/v1';
+}
+
+function getGeminiApiKey(): string {
+  return process.env.GEMINI_API_KEY || '';
 }
 
 export const trebloService = {
@@ -18,6 +23,54 @@ export const trebloService = {
     );
   },
 
+  async generateLyricsWithGemini(input: SongGenerationInput): Promise<string> {
+    const apiKey = getGeminiApiKey();
+    if (!apiKey) return '';
+
+    try {
+      const ai = new GoogleGenAI({
+        apiKey: apiKey,
+        httpOptions: {
+          headers: {
+            'User-Agent': 'aistudio-build',
+          }
+        }
+      });
+      
+      console.log('[TREBLO] Generating high-quality lyrics with Gemini...');
+      const response = await ai.models.generateContent({
+        model: 'gemini-3.5-flash',
+        contents: `Você é um Compositor e Letrista de Elite. Sua especialidade é a "Alquimia Lírica": transformar relatos brutos em composições profundas e emocionantes.
+    
+Seu objetivo é criar a letra de uma música em Português (Brasil). O usuário fornecerá uma história, mas você NÃO deve apenas rimar o que ele escreveu. Você deve interpretar a alma do relato.
+
+DETALHES DA COMPOSIÇÃO:
+- Estilo Musical: ${input.musicStyle}
+- Emoção Central: ${input.emotion}
+- Homenageado(a): ${input.recipientName}
+- A História (Base): ${input.story}
+
+MANUAL DE ESTILO:
+1. PROIBIÇÃO DE LITERALIDADE: Não use as frases exatas da história. Use sinônimos, analogias e metáforas.
+2. ESTRUTURA: Organize em [Verse 1], [Chorus], [Verse 2], [Chorus], [Bridge], [Chorus], [Outro].
+3. ADAPTAÇÃO: A letra deve fluir perfeitamente com o estilo ${input.musicStyle}.
+
+REGRAS:
+- Responda APENAS com a letra.
+- Sem títulos ou comentários.
+- Idioma: Português do Brasil.`
+      });
+
+      if (response.text) {
+        return response.text;
+      }
+      return '';
+    } catch (error) {
+      console.error('[TREBLO] Gemini lyrics generation failed:', error);
+      return '';
+    }
+  },
+
   async generateSong(input: SongGenerationInput): Promise<{ taskId: string }> {
     console.log('[Treblo] Initiating song generation for:', input.recipientName);
     
@@ -28,11 +81,19 @@ export const trebloService = {
     }
 
     try {
-      const promptText = `Crie uma música profissional e emocionante no estilo ${input.musicStyle}. 
+      // First, try to get professional lyrics from Gemini
+      const lyrics = await this.generateLyricsWithGemini(input);
+      
+      let promptText: string;
+      if (lyrics) {
+        promptText = `Gere uma música profissional no estilo ${input.musicStyle} com o sentimento ${input.emotion}. Use exatamente esta letra poética: \n\n${lyrics}`;
+      } else {
+        promptText = `Crie uma música profissional e emocionante no estilo ${input.musicStyle}. 
 Homenageado(a): ${input.recipientName} (${input.recipient}). 
 Sentimento: ${input.emotion}. 
 Inspiração: ${input.story}. 
 A letra deve ser poética, fluida e transformar essa história em uma composição memorável, focando na profundidade emocional e em metáforas que honrem o homenageado.`;
+      }
       
       let safeTags: string[] = ['romantic'];
       const style = input.musicStyle;
