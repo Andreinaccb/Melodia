@@ -72,13 +72,13 @@ export default function StepForm({ onSubmit }: StepFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <h3 className="font-serif text-3xl text-premium-title font-bold text-center mb-10 tracking-tight">
+    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+      <h3 className="font-serif text-2xl sm:text-3xl text-premium-title font-bold text-center mb-6 sm:mb-10 tracking-tight">
         Detalhes da Homenagem
       </h3>
 
       {/* Row 1: Pessoa homenageada & Nome */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
         <div className="flex flex-col space-y-2.5">
           <label className="text-[10px] font-bold tracking-[0.2em] text-premium-label uppercase flex items-center gap-2.5 ml-1">
             <Heart className="w-3.5 h-3.5 text-brand-pink" />
@@ -115,7 +115,7 @@ export default function StepForm({ onSubmit }: StepFormProps) {
       </div>
 
       {/* Row 2: Estilo musical & Clima da música */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-1">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 pt-0.5">
         <div className="flex flex-col space-y-2.5">
           <label className="text-[10px] font-bold tracking-[0.2em] text-premium-label uppercase flex items-center gap-2.5 ml-1">
             <Music className="w-3.5 h-3.5 text-brand-pink" />

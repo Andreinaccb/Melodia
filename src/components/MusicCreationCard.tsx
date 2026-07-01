@@ -139,7 +139,7 @@ export default function MusicCreationCard() {
   };
 
   return (
-    <div className="premium-card p-6 sm:p-10 w-full relative transition-all duration-500 flex flex-col justify-between group">
+    <div className="premium-card p-4 sm:p-10 w-full relative transition-all duration-500 flex flex-col justify-between group">
       {/* Decorative Glow behind card */}
       <div className="absolute -inset-10 bg-brand-pink/5 rounded-[4rem] blur-[80px] opacity-40 pointer-events-none transition-opacity duration-500"></div>
       
@@ -149,7 +149,7 @@ export default function MusicCreationCard() {
 
       {/* Step Progress indicators at top - Only show until hearing the music (preview) */}
       {(step === 'form' || step === 'generating' || step === 'preview') && (
-        <div className="relative z-10 mb-8">
+        <div className="relative z-10 mb-4 sm:mb-8">
           <StepIndicator currentStep={step} />
         </div>
       )}

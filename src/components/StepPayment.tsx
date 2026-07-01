@@ -129,15 +129,15 @@ export default function StepPayment({ order, onPaymentApproved }: StepPaymentPro
   }
 
   return (
-    <div className="space-y-8 py-2">
+    <div className="space-y-6 sm:space-y-8 py-1 sm:py-2">
       {/* Header */}
-      <div className="text-center space-y-3">
-        <div className="flex items-center justify-center gap-2 text-brand-pink mb-2">
-          <ShieldCheck className="w-5 h-5" />
-          <span className="text-[10px] font-black uppercase tracking-[0.2em]">Pagamento Seguro via Pix</span>
+      <div className="text-center space-y-2 sm:space-y-3">
+        <div className="flex items-center justify-center gap-2 text-brand-pink mb-1 sm:mb-2">
+          <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5" />
+          <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em]">Pagamento Seguro via Pix</span>
         </div>
-        <h3 className="font-serif text-3xl text-premium-title font-bold tracking-tight">Finalize seu Pagamento</h3>
-        <p className="text-sm text-premium-label font-medium opacity-60">Escaneie o QR Code abaixo ou use o Copia e Cola</p>
+        <h3 className="font-serif text-2xl sm:text-3xl text-premium-title font-bold tracking-tight">Finalize o Pagamento</h3>
+        <p className="text-xs sm:text-sm text-premium-label font-medium opacity-60">Para Baixar Sua Música Exclusiva</p>
       </div>
 
       {/* Timer Display */}
@@ -149,14 +149,44 @@ export default function StepPayment({ order, onPaymentApproved }: StepPaymentPro
         </div>
       </div>
 
+      {/* Copia e Cola */}
+      <div className="space-y-4">
+        <p className="text-[10px] font-bold text-premium-label uppercase tracking-widest text-center opacity-60">Ou use o código Copia e Cola:</p>
+        <div className="flex gap-3">
+          <div className="flex-1 bg-white border border-premium-border/50 rounded-2xl px-5 py-4 text-xs font-mono text-premium-text truncate h-14 flex items-center shadow-sm">
+            {pixData?.qrCode}
+          </div>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={copyToClipboard}
+            className="px-6 h-14 btn-premium-gradient rounded-2xl flex items-center justify-center gap-2 shadow-lg cursor-pointer flex-shrink-0"
+          >
+            <AnimatePresence mode="wait">
+              {copied ? (
+                <motion.div key="check" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} className="flex items-center gap-2">
+                  <Check className="w-5 h-5 text-white" />
+                  <span className="text-white text-xs font-bold uppercase tracking-wider">Copiado!</span>
+                </motion.div>
+              ) : (
+                <motion.div key="copy" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} className="flex items-center gap-2">
+                  <Copy className="w-5 h-5 text-white" />
+                  <span className="text-white text-xs font-bold uppercase tracking-wider">Copiar</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.button>
+        </div>
+      </div>
+
       {/* QR Code */}
       <motion.div 
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="relative max-w-[280px] mx-auto group"
+        className="relative max-w-[240px] sm:max-w-[280px] mx-auto group"
       >
         <div className="absolute inset-0 bg-brand-pink/5 blur-[80px] rounded-full group-hover:bg-brand-pink/10 transition-colors" />
-        <div className="relative bg-white rounded-[3rem] p-8 border-2 border-premium-border/30 shadow-2xl overflow-hidden">
+        <div className="relative bg-white rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-8 border-2 border-premium-border/30 shadow-2xl overflow-hidden">
           {pixData?.qrCodeBase64 ? (
             <img src={`data:image/png;base64,${pixData.qrCodeBase64}`} alt="QR Code" className="w-full h-auto rounded-2xl relative z-10" />
           ) : (
@@ -174,34 +204,6 @@ export default function StepPayment({ order, onPaymentApproved }: StepPaymentPro
           </div>
         </div>
       </motion.div>
-
-      {/* Copia e Cola */}
-      <div className="space-y-4">
-        <p className="text-[10px] font-bold text-premium-label uppercase tracking-widest text-center opacity-60">Ou use o código Copia e Cola:</p>
-        <div className="flex gap-3">
-          <div className="flex-1 bg-white border border-premium-border/50 rounded-2xl px-5 py-4 text-xs font-mono text-premium-text truncate h-14 flex items-center shadow-sm">
-            {pixData?.qrCode}
-          </div>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={copyToClipboard}
-            className="w-14 h-14 btn-premium-gradient rounded-2xl flex items-center justify-center shadow-lg cursor-pointer flex-shrink-0"
-          >
-            <AnimatePresence mode="wait">
-              {copied ? (
-                <motion.div key="check" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}>
-                  <Check className="w-6 h-6 text-white" />
-                </motion.div>
-              ) : (
-                <motion.div key="copy" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}>
-                  <Copy className="w-6 h-6 text-white" />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.button>
-        </div>
-      </div>
     </div>
   );
 }

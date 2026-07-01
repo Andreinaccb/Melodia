@@ -16,11 +16,11 @@ export default function StepIndicator({ currentStep }: StepIndicatorProps) {
   }
 
   return (
-    <div className="flex items-center justify-between w-full max-w-sm mx-auto mb-8 sm:mb-12 relative z-10">
+    <div className="flex items-center justify-between w-full max-w-sm mx-auto mb-4 sm:mb-12 relative z-10">
       {/* Step 1 */}
       <div className="flex flex-col items-center flex-1">
         <div
-          className={`w-11 h-11 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-500 ${
+          className={`w-9 h-9 sm:w-11 sm:h-11 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm transition-all duration-500 ${
             activeIndex >= 1
               ? 'step-circle-active'
               : 'border-2 border-premium-border/60 text-premium-text/30 bg-white/50'
@@ -50,7 +50,7 @@ export default function StepIndicator({ currentStep }: StepIndicatorProps) {
       {/* Step 2 */}
       <div className="flex flex-col items-center flex-1">
         <div
-          className={`w-11 h-11 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-500 ${
+          className={`w-9 h-9 sm:w-11 sm:h-11 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm transition-all duration-500 ${
             activeIndex >= 2
               ? 'step-circle-active'
               : 'border-2 border-premium-border/60 text-premium-text/30 bg-white/50'
@@ -80,7 +80,7 @@ export default function StepIndicator({ currentStep }: StepIndicatorProps) {
       {/* Step 3 */}
       <div className="flex flex-col items-center flex-1">
         <div
-          className={`w-11 h-11 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-500 ${
+          className={`w-9 h-9 sm:w-11 sm:h-11 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm transition-all duration-500 ${
             activeIndex >= 3
               ? 'step-circle-active'
               : 'border-2 border-premium-border/60 text-premium-text/30 bg-white/50'

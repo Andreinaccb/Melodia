@@ -16,11 +16,15 @@ export default function AudioPlayer({ audioUrl, title, subtitle }: AudioPlayerPr
   const [volume, setVolume] = useState(0.8);
   const [isMuted, setIsMuted] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [playCount, setPlayCount] = useState(0);
+  const [showLimitError, setShowLimitError] = useState(false);
 
   useEffect(() => {
     setIsPlaying(false);
     setCurrentTime(0);
     setDuration(0);
+    setPlayCount(0);
+    setShowLimitError(false);
   }, [audioUrl]);
 
   const togglePlay = () => {
@@ -29,10 +33,35 @@ export default function AudioPlayer({ audioUrl, title, subtitle }: AudioPlayerPr
       audioRef.current.pause();
       setIsPlaying(false);
     } else {
+      // 50 seconds limit reached or ended
+      const isAtEnd = audioRef.current.currentTime >= 50 || audioRef.current.ended;
+      
+      // Check limit before playing
+      if (isAtEnd && playCount >= 2) {
+        setShowLimitError(true);
+        return;
+      }
+
+      // If at end, reset to start
+      if (isAtEnd) {
+        audioRef.current.currentTime = 0;
+        setCurrentTime(0);
+      }
+
+      // If starting fresh or from end, increment count
+      if (audioRef.current.currentTime === 0) {
+        if (playCount >= 2) {
+          setShowLimitError(true);
+          return;
+        }
+        setPlayCount(prev => prev + 1);
+      }
+
       audioRef.current.play().catch((err) => {
         console.error('[AudioPlayer] Error playing audio:', err);
       });
       setIsPlaying(true);
+      setShowLimitError(false);
     }
   };
 
@@ -199,6 +228,23 @@ export default function AudioPlayer({ audioUrl, title, subtitle }: AudioPlayerPr
               {subtitle}
             </p>
           </div>
+
+          {/* Limit Message */}
+          <AnimatePresence>
+            {showLimitError && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                className="mb-6 p-4 rounded-2xl bg-brand-pink/10 border border-brand-pink/20 text-center"
+              >
+                <p className="text-xs font-bold text-brand-pink leading-relaxed">
+                  Limite de reproduções excedido.<br/>
+                  <span className="font-normal opacity-80">Baixe a música para continuar ouvindo a versão completa.</span>
+                </p>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Time & Volume Minimalist Controls */}
           <div className="w-full flex items-center justify-between gap-6 px-2">

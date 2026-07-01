@@ -33,16 +33,16 @@ export default function SuccessStep({ order }: SuccessStepProps) {
   };
 
   return (
-    <div className="space-y-8 text-center py-2 sm:py-4 relative">
+    <div className="space-y-6 sm:space-y-8 text-center py-1 sm:py-4 relative">
       {/* Celebration Header */}
       <div className="flex flex-col items-center">
-        <div className="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center border border-emerald-100 mb-5 shadow-lg animate-bounce">
-          <CheckCircle2 className="w-10 h-10 text-emerald-500" />
+        <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-emerald-50 flex items-center justify-center border border-emerald-100 mb-4 sm:mb-5 shadow-lg animate-bounce">
+          <CheckCircle2 className="w-8 h-8 sm:w-10 sm:h-10 text-emerald-500" />
         </div>
-        <span className="text-[10px] uppercase font-bold tracking-[0.3em] text-emerald-500 bg-emerald-50 px-4 py-1.5 rounded-full border border-emerald-100 shadow-sm">
+        <span className="text-[9px] sm:text-[10px] uppercase font-bold tracking-[0.3em] text-emerald-500 bg-emerald-50 px-3 sm:px-4 py-1.5 rounded-full border border-emerald-100 shadow-sm">
           Pagamento Aprovado
         </span>
-        <h3 className="font-serif text-3xl text-premium-title font-bold mt-4 tracking-tight">
+        <h3 className="font-serif text-2xl sm:text-3xl text-premium-title font-bold mt-4 tracking-tight">
           Sua Música está Liberada!
         </h3>
         <p className="text-sm text-premium-text font-medium mt-3 max-w-xs mx-auto leading-relaxed opacity-80">

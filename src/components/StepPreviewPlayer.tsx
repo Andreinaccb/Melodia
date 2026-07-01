@@ -11,14 +11,14 @@ interface StepPreviewPlayerProps {
 
 export default function StepPreviewPlayer({ order, onBuyClick }: StepPreviewPlayerProps) {
   return (
-    <div className="space-y-8 py-4">
+    <div className="space-y-6 sm:space-y-8 py-2 sm:py-4">
       {/* Title */}
       <motion.div 
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center space-y-2"
+        className="text-center space-y-1 sm:space-y-2"
       >
-        <h3 className="font-serif text-2xl sm:text-3xl text-premium-title font-bold tracking-tight px-2">
+        <h3 className="font-serif text-xl sm:text-3xl text-premium-title font-bold tracking-tight px-2">
           A prévia para <span className="text-brand-pink underline decoration-brand-pink/20 underline-offset-8">{order.recipient_name}</span> ficou pronta
         </h3>
         <p className="text-[13px] text-premium-label font-medium opacity-60 uppercase tracking-widest pt-2">
