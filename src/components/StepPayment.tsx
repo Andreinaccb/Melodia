@@ -131,13 +131,20 @@ export default function StepPayment({ order, onPaymentApproved }: StepPaymentPro
   return (
     <div className="space-y-6 sm:space-y-8 py-1 sm:py-2">
       {/* Header */}
-      <div className="text-center space-y-2 sm:space-y-3">
+      <div className="text-center space-y-3 sm:space-y-4">
         <div className="flex items-center justify-center gap-2 text-brand-pink mb-1 sm:mb-2">
-          <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5" />
-          <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em]">Pagamento Seguro via Pix</span>
+          <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6" />
+          <span className="text-xs sm:text-sm font-black uppercase tracking-[0.2em]">Pagamento Seguro via Pix</span>
         </div>
-        <h3 className="font-serif text-2xl sm:text-3xl text-premium-title font-bold tracking-tight">Finalize o Pagamento</h3>
-        <p className="text-xs sm:text-sm text-premium-label font-medium opacity-60">Para Baixar Sua Música Exclusiva</p>
+        <h3 className="font-serif text-3xl sm:text-4xl text-premium-title font-bold tracking-tight">Finalize o Pagamento</h3>
+        <p className="text-sm sm:text-lg text-premium-label font-medium opacity-80">Para Baixar Sua Música Exclusiva</p>
+      </div>
+
+      {/* Instruction text updated and inverted */}
+      <div className="text-center px-4">
+        <p className="text-xs sm:text-sm text-premium-label font-bold uppercase tracking-widest opacity-60 leading-relaxed">
+          Use o código Copia e Cola abaixo ou<br className="sm:hidden" /> escaneie o QR Code para pagar
+        </p>
       </div>
 
       {/* Timer Display */}
@@ -151,7 +158,6 @@ export default function StepPayment({ order, onPaymentApproved }: StepPaymentPro
 
       {/* Copia e Cola */}
       <div className="space-y-4">
-        <p className="text-[10px] font-bold text-premium-label uppercase tracking-widest text-center opacity-60">Ou use o código Copia e Cola:</p>
         <div className="flex gap-3">
           <div className="flex-1 bg-white border border-premium-border/50 rounded-2xl px-5 py-4 text-xs font-mono text-premium-text truncate h-14 flex items-center shadow-sm">
             {pixData?.qrCode}
