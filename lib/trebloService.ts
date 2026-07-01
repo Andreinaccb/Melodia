@@ -28,7 +28,11 @@ export const trebloService = {
     }
 
     try {
-      const promptText = `Uma canção de estilo ${input.musicStyle} para homenagear ${input.recipientName} (${input.recipient}), enviada por ${input.senderName} para a ocasião de ${input.occasion}. Sentimento principal de ${input.emotion}. História de inspiração: ${input.story}`;
+      const promptText = `Crie uma música profissional e emocionante no estilo ${input.musicStyle}. 
+Homenageado(a): ${input.recipientName} (${input.recipient}). 
+Sentimento: ${input.emotion}. 
+Inspiração: ${input.story}. 
+A letra deve ser poética, fluida e transformar essa história em uma composição memorável, focando na profundidade emocional e em metáforas que honrem o homenageado.`;
       
       let safeTags: string[] = ['romantic'];
       const style = input.musicStyle;

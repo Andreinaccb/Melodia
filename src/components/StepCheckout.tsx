@@ -45,6 +45,18 @@ export default function StepCheckout({ order, onProceedToPayment }: StepCheckout
           >
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-4">
+                {/* Selection Circle */}
+                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
+                  deliveryOption === 'immediate' ? 'border-brand-pink' : 'border-premium-border/60'
+                }`}>
+                  {deliveryOption === 'immediate' && (
+                    <motion.div 
+                      layoutId="delivery-radio-inner"
+                      className="w-2.5 h-2.5 rounded-full bg-brand-pink" 
+                    />
+                  )}
+                </div>
+
                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
                   deliveryOption === 'immediate' ? 'bg-brand-pink text-white' : 'bg-premium-border/20 text-premium-label'
                 }`}>
@@ -79,6 +91,18 @@ export default function StepCheckout({ order, onProceedToPayment }: StepCheckout
           >
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-4">
+                {/* Selection Circle */}
+                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
+                  deliveryOption === 'standard' ? 'border-brand-pink' : 'border-premium-border/60'
+                }`}>
+                  {deliveryOption === 'standard' && (
+                    <motion.div 
+                      layoutId="delivery-radio-inner"
+                      className="w-2.5 h-2.5 rounded-full bg-brand-pink" 
+                    />
+                  )}
+                </div>
+
                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
                   deliveryOption === 'standard' ? 'bg-brand-pink text-white' : 'bg-premium-border/20 text-premium-label'
                 }`}>

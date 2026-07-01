@@ -72,15 +72,27 @@ export const kieSunoService = {
       console.log('[KIE] Generating lyrics with Gemini 3.5 Flash...');
       const response = await ai.models.generateContent({
         model: 'gemini-3.5-flash',
-        contents: `Escreva a letra de uma canção emocionante e personalizada em português do Brasil com base nas informações abaixo:
-- Estilo Musical: ${input.musicStyle}
-- Clima da música: ${input.emotion}
-- Homenageado(a): ${input.recipientName} (${input.recipient})
-- Enviado por: ${input.senderName || 'Alguém que te ama'}
-- História de amor/vida: ${input.story}
+        contents: `Você é um letrista e compositor profissional de renome, especializado em transformar relatos simples em poesias musicais profundas e memoráveis.
+    
+Seu objetivo é criar a letra de uma música baseada nos detalhes abaixo, garantindo que ela não seja apenas uma repetição dos fatos, mas uma obra de arte emocional que toque o coração.
 
-A letra deve conter estrutura clássica (com tags legíveis para IA como [Verse 1], [Chorus], [Verse 2], [Chorus], [Outro]). O tom deve ser tocante e sincero, encaixando os nomes e a história de maneira fluida e melódica.
-IMPORTANTE: Retorne APENAS a letra estruturada, sem explicações, sem introduções e sem formatação markdown (como blocos de código com \`\`\`).`,
+DETALHES DA HOMENAGEM:
+- Estilo Musical: ${input.musicStyle}
+- Clima/Emoção Predominante: ${input.emotion}
+- Homenageado(a): ${input.recipientName} (${input.recipient})
+- A Essência da História: ${input.story}
+
+DIRETRIZES CRIATIVAS:
+1. POETIZAÇÃO: Transforme os fatos brutos em metáforas e imagens sensoriais. Não apenas relate os acontecimentos; descreva as sensações e o impacto emocional deles.
+2. ESTRUTURA MUSICAL: Organize a letra obrigatoriamente com as tags: [Verse 1], [Chorus], [Verse 2], [Chorus], [Bridge], [Chorus], [Outro].
+3. RITMO E MÉTRICA: A letra deve ter uma métrica que combine perfeitamente com o estilo ${input.musicStyle}. Use rimas ricas e evite clichês ou repetições excessivas.
+4. EXPANSÃO CRIATIVA: Se a história fornecida for curta, use sua sensibilidade para expandir os sentimentos envolvidos (gratidão, amor, admiração), mantendo a verdade da história.
+5. TOM E VOZ: A letra deve soar como uma declaração sincera e íntima dedicada a ${input.recipientName}.
+
+REGRAS CRÍTICAS:
+- Responda APENAS com a letra da música, sem textos adicionais.
+- NÃO inclua títulos, introduções, explicações ou notas do compositor.
+- Idioma: Português do Brasil.`,
       });
 
       if (response.text) {
@@ -97,13 +109,13 @@ IMPORTANTE: Retorne APENAS a letra estruturada, sem explicações, sem introduç
 
   generateDeterministicLyrics(input: SongGenerationInput): string {
     return `[Verse 1]
-De ${input.senderName} para ${input.recipientName}
+Para ${input.recipientName}
 Lembro de cada detalhe do que passamos
 A nossa história escrita em cada detalhe, cada canção
 ${input.story}
 
 [Chorus]
-E hoje celebro com você esse dia especial: ${input.occasion}
+E hoje celebro com você esse momento especial
 Nossa melodia em tom de ${input.emotion}
 Você é tudo que sempre sonhei, meu porto seguro
 Uma canção de ${input.musicStyle} para te guiar no escuro
@@ -115,13 +127,13 @@ Cada palavra que digo vem do fundo do meu peito
 Nosso amor é perfeito, do nosso jeito
 
 [Chorus]
-E hoje celebro com você esse dia especial: ${input.occasion}
+E hoje celebro com você esse momento especial
 Nossa melodia em tom de ${input.emotion}
 Você é tudo que sempre sonhei, meu porto seguro
 Uma canção de ${input.musicStyle} para te guiar no escuro
 
 [Outro]
-Com amor, ${input.senderName} para ${input.recipientName}.
+Para ${input.recipientName}.
 Nossa melodia eterna.`;
   },
 

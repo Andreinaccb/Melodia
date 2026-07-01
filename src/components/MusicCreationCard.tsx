@@ -147,10 +147,12 @@ export default function MusicCreationCard() {
       <div className="absolute top-0 right-0 w-40 h-40 bg-brand-pink/[0.03] rounded-full blur-3xl -mr-20 -mt-20"></div>
       <div className="absolute bottom-0 left-0 w-40 h-40 bg-purple-500/[0.03] rounded-full blur-3xl -ml-20 -mb-20"></div>
 
-      {/* Step Progress indicators at top */}
-      <div className="relative z-10 mb-8">
-        <StepIndicator currentStep={step} />
-      </div>
+      {/* Step Progress indicators at top - Only show until hearing the music (preview) */}
+      {(step === 'form' || step === 'generating' || step === 'preview') && (
+        <div className="relative z-10 mb-8">
+          <StepIndicator currentStep={step} />
+        </div>
+      )}
 
       {/* Main step content */}
       <div className="relative z-10 flex-1 flex flex-col justify-center">
