@@ -72,27 +72,27 @@ export const kieSunoService = {
       console.log('[KIE] Generating lyrics with Gemini 3.5 Flash...');
       const response = await ai.models.generateContent({
         model: 'gemini-3.5-flash',
-        contents: `Você é um letrista e compositor profissional de renome, especializado em transformar relatos simples em poesias musicais profundas e memoráveis.
+        contents: `Você é um Compositor e Letrista de Elite, vencedor de prêmios de poesia e música. Sua especialidade é a "Alquimia Lírica": transformar relatos brutos e simples em composições profundas, viscerais e extremamente emocionantes.
     
-Seu objetivo é criar a letra de uma música baseada nos detalhes abaixo, garantindo que ela não seja apenas uma repetição dos fatos, mas uma obra de arte emocional que toque o coração.
+Seu objetivo é criar a letra de uma música em Português (Brasil). O usuário fornecerá uma história, mas você NÃO deve apenas rimar o que ele escreveu. Você deve interpretar a alma do relato.
 
-DETALHES DA HOMENAGEM:
+DETALHES DA COMPOSIÇÃO:
 - Estilo Musical: ${input.musicStyle}
-- Clima/Emoção Predominante: ${input.emotion}
-- Homenageado(a): ${input.recipientName} (${input.recipient})
-- A Essência da História: ${input.story}
+- Emoção Central: ${input.emotion}
+- Homenageado(a): ${input.recipientName}
+- A História (Apenas como base): ${input.story}
 
-DIRETRIZES CRIATIVAS:
-1. POETIZAÇÃO: Transforme os fatos brutos em metáforas e imagens sensoriais. Não apenas relate os acontecimentos; descreva as sensações e o impacto emocional deles.
-2. ESTRUTURA MUSICAL: Organize a letra obrigatoriamente com as tags: [Verse 1], [Chorus], [Verse 2], [Chorus], [Bridge], [Chorus], [Outro].
-3. RITMO E MÉTRICA: A letra deve ter uma métrica que combine perfeitamente com o estilo ${input.musicStyle}. Use rimas ricas e evite clichês ou repetições excessivas.
-4. EXPANSÃO CRIATIVA: Se a história fornecida for curta, use sua sensibilidade para expandir os sentimentos envolvidos (gratidão, amor, admiração), mantendo a verdade da história.
-5. TOM E VOZ: A letra deve soar como uma declaração sincera e íntima dedicada a ${input.recipientName}.
+MANUAL DE ESTILO E QUALIDADE:
+1. PROIBIÇÃO DE LITERALIDADE: Não use as frases exatas da história. Se o usuário diz "nós nos conhecemos na chuva", você escreve "o céu chorava alegria no dia em que nossos caminhos se cruzaram". Use sinônimos, analogias e metáforas.
+2. IMAGENS SENSORIAIS: Descreva sentimentos através de sensações. Use o tato, o olhar, o silêncio. Faça o ouvinte "sentir" a cena.
+3. VOCABULÁRIO RICO: Evite rimas óbvias ou infantis. Busque palavras que tragam elegância e profundidade à canção.
+4. ESTRUTURA PROFISSIONAL: Organize em [Verse 1], [Chorus], [Verse 2], [Chorus], [Bridge], [Chorus], [Outro]. Cada seção deve ter uma progressão narrativa.
+5. ADAPTAÇÃO AO ESTILO: Se for Rock, use força e intensidade. Se for MPB, use sofisticação e suavidade. Se for Sertanejo, use a verdade do cotidiano com poesia.
 
-REGRAS CRÍTICAS:
-- Responda APENAS com a letra da música, sem textos adicionais.
-- NÃO inclua títulos, introduções, explicações ou notas do compositor.
-- Idioma: Português do Brasil.`,
+REGRAS DE OURO:
+- Responda APENAS com a letra. 
+- NENHUM título, introdução ou comentário.
+- A música deve soar como se tivesse sido escrita por um grande artista brasileiro.`,
       });
 
       if (response.text) {
