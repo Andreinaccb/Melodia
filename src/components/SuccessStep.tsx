@@ -12,22 +12,40 @@ export default function SuccessStep({ order }: SuccessStepProps) {
   const trackSubtitle = `Música Completa • Estilo ${order.music_style}`;
 
   // Helper to trigger direct browser download
-  const handleDownload = () => {
+  const handleDownload = async () => {
     const url = order.full_audio_url || '';
     if (!url) return;
-    const link = document.createElement('a');
-    link.href = url;
-    link.target = '_blank';
-    link.download = `melodia-ia-homenagem-${order.id}.mp3`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+
+    try {
+      // Try fetching as blob to force download
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = `melodia-ia-${order.recipient_name.toLowerCase().replace(/\s+/g, '-')}.mp3`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error('[Download] Failed to fetch blob, falling back to direct link:', error);
+      // Fallback to standard link behavior
+      const link = document.createElement('a');
+      link.href = url;
+      link.target = '_blank';
+      link.download = `melodia-ia-homenagem-${order.id}.mp3`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   };
 
   // Helper to share via WhatsApp
   const handleShareWhatsApp = () => {
     const text = encodeURIComponent(
-      `Fiz uma música personalizada linda para você usando Inteligência Artificial! Ouça aqui a nossa melodia especial: ${order.full_audio_url}`
+      `Preciso que você ouça isso até o final... ❤️\nAcho que você vai gostar. 🎶\nOuça aqui: ${order.full_audio_url}`
     );
     window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
   };
@@ -56,6 +74,7 @@ export default function SuccessStep({ order }: SuccessStepProps) {
           audioUrl={order.full_audio_url || 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3'}
           title={trackTitle}
           subtitle={trackSubtitle}
+          isFullVersion={true}
         />
       </div>
 
@@ -100,7 +119,7 @@ export default function SuccessStep({ order }: SuccessStepProps) {
           "Prepare uma surpresa! Envie pela WhatsApp, monte um vídeo com fotos, ou toque durante um jantar romântico."
         </p>
         <span className="flex items-center gap-2 text-xs text-brand-pink font-bold mt-2">
-          Melodia IA deseja muito amor! <Heart className="w-4 h-4 text-brand-pink fill-current animate-pulse" />
+          Desejamos muito amor! <Heart className="w-4 h-4 text-brand-pink fill-current animate-pulse" />
         </span>
       </div>
     </div>

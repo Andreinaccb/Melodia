@@ -6,9 +6,10 @@ interface AudioPlayerProps {
   audioUrl: string;
   title: string;
   subtitle: string;
+  isFullVersion?: boolean;
 }
 
-export default function AudioPlayer({ audioUrl, title, subtitle }: AudioPlayerProps) {
+export default function AudioPlayer({ audioUrl, title, subtitle, isFullVersion = false }: AudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -33,28 +34,31 @@ export default function AudioPlayer({ audioUrl, title, subtitle }: AudioPlayerPr
       audioRef.current.pause();
       setIsPlaying(false);
     } else {
-      // 50 seconds limit reached or ended
-      const isAtEnd = audioRef.current.currentTime >= 50 || audioRef.current.ended;
-      
-      // Check limit before playing
-      if (isAtEnd && playCount >= 2) {
-        setShowLimitError(true);
-        return;
-      }
-
-      // If at end, reset to start
-      if (isAtEnd) {
-        audioRef.current.currentTime = 0;
-        setCurrentTime(0);
-      }
-
-      // If starting fresh or from end, increment count
-      if (audioRef.current.currentTime === 0) {
-        if (playCount >= 2) {
+      // Preview restrictions
+      if (!isFullVersion) {
+        // 50 seconds limit reached or ended
+        const isAtEnd = audioRef.current.currentTime >= 50 || audioRef.current.ended;
+        
+        // Check limit before playing
+        if (isAtEnd && playCount >= 2) {
           setShowLimitError(true);
           return;
         }
-        setPlayCount(prev => prev + 1);
+
+        // If at end, reset to start
+        if (isAtEnd) {
+          audioRef.current.currentTime = 0;
+          setCurrentTime(0);
+        }
+
+        // If starting fresh or from end, increment count
+        if (audioRef.current.currentTime === 0) {
+          if (playCount >= 2) {
+            setShowLimitError(true);
+            return;
+          }
+          setPlayCount(prev => prev + 1);
+        }
       }
 
       audioRef.current.play().catch((err) => {
@@ -70,7 +74,7 @@ export default function AudioPlayer({ audioUrl, title, subtitle }: AudioPlayerPr
     const time = audioRef.current.currentTime;
     
     // 50 seconds preview limit
-    if (time >= 50) {
+    if (!isFullVersion && time >= 50) {
       audioRef.current.pause();
       audioRef.current.currentTime = 50;
       setIsPlaying(false);
@@ -84,7 +88,7 @@ export default function AudioPlayer({ audioUrl, title, subtitle }: AudioPlayerPr
   const handleLoadedMetadata = () => {
     if (!audioRef.current) return;
     // Cap duration at 50 seconds for preview display
-    setDuration(Math.min(audioRef.current.duration, 50));
+    setDuration(isFullVersion ? audioRef.current.duration : Math.min(audioRef.current.duration, 50));
   };
 
   const handleAudioEnded = () => {
@@ -94,7 +98,8 @@ export default function AudioPlayer({ audioUrl, title, subtitle }: AudioPlayerPr
 
   const handleProgressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!audioRef.current) return;
-    const newTime = Math.min(parseFloat(e.target.value), 50);
+    const maxTime = isFullVersion ? audioRef.current.duration : 50;
+    const newTime = Math.min(parseFloat(e.target.value), maxTime);
     audioRef.current.currentTime = newTime;
     setCurrentTime(newTime);
   };
@@ -121,7 +126,8 @@ export default function AudioPlayer({ audioUrl, title, subtitle }: AudioPlayerPr
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
-  const progressPercentage = (currentTime / (duration || 50)) * 100;
+  const totalDuration = isFullVersion ? duration : (duration || 50);
+  const progressPercentage = (currentTime / totalDuration) * 100;
 
   return (
     <motion.div 
@@ -249,7 +255,7 @@ export default function AudioPlayer({ audioUrl, title, subtitle }: AudioPlayerPr
           {/* Time & Volume Minimalist Controls */}
           <div className="w-full flex items-center justify-between gap-6 px-2">
             <div className="text-[10px] font-mono font-bold text-premium-label/40 tracking-widest">
-              {formatTime(currentTime)} / {formatTime(duration || 50)}
+              {formatTime(currentTime)} / {formatTime(totalDuration)}
             </div>
 
             <div className="flex items-center gap-3 group/vol">
@@ -300,11 +306,17 @@ export default function AudioPlayer({ audioUrl, title, subtitle }: AudioPlayerPr
         </div>
       </div>
       
-      {/* Preview Tag */}
+      {/* Version Tag */}
       <div className="mt-4 text-center">
-        <span className="text-[10px] font-bold text-brand-pink/60 uppercase tracking-widest px-3 py-1 rounded-full bg-brand-pink/5 border border-brand-pink/10">
-          Versão de Prévia • 50 Segundos
-        </span>
+        {isFullVersion ? (
+          <span className="text-[10px] font-bold text-emerald-500/60 uppercase tracking-widest px-3 py-1 rounded-full bg-emerald-50 border border-emerald-100">
+            Versão Completa Liberada
+          </span>
+        ) : (
+          <span className="text-[10px] font-bold text-brand-pink/60 uppercase tracking-widest px-3 py-1 rounded-full bg-brand-pink/5 border border-brand-pink/10">
+            Versão de Prévia • 50 Segundos
+          </span>
+        )}
       </div>
     </motion.div>
   );
